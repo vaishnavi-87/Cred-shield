@@ -1,210 +1,352 @@
-# mn-demo
+Midnight Level 1 – Privacy Counter
 
-A Midnight Network smart contract scaffolded with create-mn-app.
+A Level 1 Midnight Network smart contract demonstrating public ledger state, private witness data, and selective disclosure using Compact.
 
-## Quick start
+Project Overview
 
-Requirements: Node 22, Docker (with Compose v2), and the Compact compiler at the version pinned in `.compact-version` at the create-mn-app repo root (the version this project was scaffolded against).
+This project implements a privacy-aware counter on the Midnight Network.
 
-```bash
-npm install
-npm run setup
-npm run test:e2e
-```
+The counter value is stored as public ledger state, while a secret value is supplied privately through a Compact witness. The contract checks the secret and deliberately discloses only whether the secret is valid, without exposing the secret itself.
 
-`npm run setup` runs end-to-end with no prompts:
+Level 1 Objectives
 
-1. `docker compose up -d --wait` — starts a local Midnight devnet (node, indexer, proof-server) and blocks until all three pass their healthchecks.
-2. `npm run compile` — compiles `contracts/hello-world.compact` to `contracts/managed/hello-world/`.
-3. `npm run deploy` — derives the genesis-seed wallet (NIGHT pre-minted), registers UTXOs for DUST generation, deploys the contract, writes `.midnight-state.json`.
+This project demonstrates:
 
-`npm run test:e2e` reconnects to the deployed contract and reads its ledger state. Exits 0 if the contract is live and indexable.
+Public ledger state
+Private witness data
+Selective disclosure using disclose()
+Compact smart contract development
+Zero-knowledge circuit generation
+Local Midnight development network
+Wallet setup and synchronization
+Contract compilation
+Contract deployment
+Automated testing
+TypeScript validation
+CLI interaction with the deployed contract
+Git and GitHub project submission
+Privacy Counter
 
-## Local devnet
+The main Level 1 contract is:
 
-The project ships its own devnet via `docker-compose.yml`:
+contracts/counter.compact
+Public Ledger State
+export ledger count: Uint<32>;
 
-| Service        | Port | Purpose                                         |
-| -------------- | ---- | ----------------------------------------------- |
-| `node`         | 9944 | Midnight node, `dev` chain preset               |
-| `indexer`      | 8088 | GraphQL indexer for chain state                 |
-| `proof-server` | 6300 | Generates ZK proofs for contract transactions   |
+The count value is stored as public ledger state.
 
-State lives in container-managed volumes. Tear everything down with:
+Private Witness
+witness secret(): Uint<32>;
 
-```bash
-docker compose down -v
-```
+The secret is supplied privately through a witness and is not stored directly on the public ledger.
 
-That removes all containers, networks, and volumes. The next `npm run setup` starts from a clean slate.
+Selective Disclosure
+const isValid = privateSecret > 0;
+disclose(isValid);
 
-## ⚠️ LOCAL DEVNET ONLY
+The contract checks whether the private secret is greater than zero.
 
-The deploy script uses a well-known genesis seed (`0000…0001`) so the
-pre-minted NIGHT in the `dev` chain preset is immediately available. **Do
-not use this seed against Preprod, mainnet, or any environment that
-handles real value** — anyone running this devnet has full access to
-funds at this seed.
+Only the boolean validation result is deliberately disclosed. The actual secret remains private.
 
-## Networks
+Counter Update
+count = count + 1 as Uint<32>;
 
-This DApp supports three networks:
+The circuit updates the public counter.
 
-| Network | When to use | Default? |
-|---|---|---|
-| `undeployed` | Local devnet bundled in `docker-compose.yml`. Genesis seed is hardcoded; no funding needed. | yes |
-| `preview` | Public preview testnet. Faucet at `https://midnight-tmnight-preview.nethermind.dev`. |  |
-| `preprod` | Public preprod testnet. Faucet at `https://midnight-tmnight-preprod.nethermind.dev`. |  |
+Privacy Model
+              PRIVATE
+                 │
+                 ▼
+          secret() witness
+                 │
+                 ▼
+       Check secret > 0
+                 │
+                 ▼
+        disclose(isValid)
+                 │
+                 ▼
+     Only validation result
+          is disclosed
+                 │
+                 ▼
+              PUBLIC
+                 │
+                 ▼
+        count = count + 1
+Public Information
+count
+Private Information
+secret
+Deliberately Disclosed Information
+isValid
 
-The active network is **sticky**: whichever network you last interacted
-with stays active until you switch. Any command run with `--network <name>`
-also sets that network active for subsequent commands. The default on a
-fresh project is `undeployed` (local devnet).
+This demonstrates the basic Midnight privacy model where private information can be used inside a circuit while only a selected result is disclosed.
 
-```sh
-npm run setup -- --network preview   # runs on preview AND makes it active
-npm run cli                          # still uses preview
-npm run check-balance                # still uses preview
-```
-
-You can also switch without running anything else:
-
-```sh
-npm run network preview         # active network is now preview
-npm run network                 # prints current active network
-npm run network undeployed      # switch back to local devnet
-```
-
-### How wallets work across networks
-
-- `undeployed` uses a hardcoded genesis seed. Local devnet pre-funds it.
-- `preview` and `preprod` generate a fresh wallet on first use: a 24-word
-  BIP-39 recovery phrase (printed once) plus its derived seed, both stored
-  in `.midnight-state.json` (gitignored). The wallet survives switching
-  networks — switch back later and your funded wallet returns.
-- **Back up your recovery phrase** if you fund a public-network wallet you
-  care about. It is printed when the wallet is created and kept in
-  `.midnight-state.json` under `wallets.<network>.mnemonic`. Anyone holding
-  the phrase controls the wallet.
-- Wallets created before mnemonic support keep working from their stored
-  `seed`; they just have no phrase to import into Lace.
-
-### Using the same wallet as Lace
-
-Seeds are derived with the standard BIP-39 `mnemonicToSeed` step — the same
-convention Lace uses — so identity is portable in both directions:
-
-- **Bring your Lace wallet here**: pass your recovery phrase via the
-  `MIDNIGHT_WALLET_MNEMONIC` env var — the derived addresses match Lace.
-  To keep the phrase out of your shell history, enter it with a hidden
-  prompt instead of typing it inline:
-
-  ```bash
-  read -s MIDNIGHT_WALLET_MNEMONIC && export MIDNIGHT_WALLET_MNEMONIC
-  npm run deploy
-  ```
-- **Take a scaffold wallet to Lace**: restore Lace from the 24-word phrase
-  in `.midnight-state.json`.
-
-### Funding a public-network wallet
-
-On the first run with `--network preview` (or `preprod`):
-
-1. `setup` will print your wallet address and the faucet URL.
-2. Open the faucet URL, paste the address, request tNIGHT.
-3. `setup` polls the wallet balance every 10 s and continues automatically
-   once funds arrive.
-4. The default poll budget is 10 minutes. Override with
-   `MIDNIGHT_FAUCET_TIMEOUT_MS=1800000` (30 min) for unattended runs.
-
-If the faucet is slow or the script times out, your seed is preserved.
-Re-run `npm run setup -- --network preview` once the funds land.
-
-### Environment overrides
-
-These env vars override the active network's config (no per-network
-suffix — they apply to whichever network is active for the run):
-
-| Variable | Effect |
-|---|---|
-| `MIDNIGHT_WALLET_SEED` | Use this hex seed (32-128 hex chars; a Lace-compatible BIP-39 seed is 128) instead of generating/persisting one. Useful for CI with a pre-funded wallet. |
-| `MIDNIGHT_WALLET_MNEMONIC` | Use this BIP-39 recovery phrase instead of generating a wallet — e.g. your Lace phrase, for the same addresses as Lace. Not persisted. Set only one of seed/mnemonic. |
-| `MIDNIGHT_INDEXER_URL` | Override the indexer GraphQL URL. |
-| `MIDNIGHT_INDEXER_WS_URL` | Override the indexer WS URL. |
-| `MIDNIGHT_NODE_URL` | Override the node RPC URL. |
-| `MIDNIGHT_FAUCET_URL` | Override the faucet URL printed during setup. |
-| `MIDNIGHT_PROOF_SERVER_URL` | Override the proof server URL — set to a public proof server (e.g. `https://lace-proof-pub.preview.midnight.network`) to skip running one locally. |
-| `MIDNIGHT_FAUCET_TIMEOUT_MS` | Faucet poll budget in milliseconds (default 600000 = 10 min). |
-
-By default all networks use the **local** proof server. Public proof
-servers exist (see the env override above) but the local default keeps
-your witness data on your machine and avoids depending on a remote
-service for the deploy hot path.
-
-### Switching back to local devnet
-
-```sh
-npm run network undeployed     # or: npm run setup -- --network undeployed
-```
-
-Your preview/preprod wallet seeds and deploy addresses stay in
-`.midnight-state.json`. Switch back later, and they're still there.
-
-### Wallet sync cache
-
-After each `deploy`, `cli`, or `check-balance` run, the scripts serialize the
-wallet's synced state to `.midnight-wallet-state/<network>/` (gitignored).
-The next run on the same network restores from that snapshot and only catches
-up to the latest block instead of replaying from genesis — meaningful on
-`preview` / `preprod` where a from-seed sync takes minutes.
-
-If the cache is stale or corrupt (e.g. after an SDK upgrade with an
-incompatible state format) the wallet falls back to a fresh from-seed sync
-with a one-line warning. `npm run clean` removes the cache along with other
-generated state.
-
-## Available scripts
-
-| Script                  | Description                                                    |
-| ----------------------- | -------------------------------------------------------------- |
-| `npm run setup`         | One-shot: start devnet, compile, deploy.                       |
-| `npm run compile`       | Compile the Compact contract.                                  |
-| `npm run deploy`        | Deploy the compiled contract (requires devnet up + compiled).  |
-| `npm run cli`           | Interactive CLI to call circuits on the deployed contract.     |
-| `npm run check-balance` | Print the genesis-seed wallet's NIGHT and DUST balances.       |
-| `npm run test:e2e`      | Smoke + read-back check against the deployed contract.         |
-| `npm run clean`         | Remove `contracts/managed/`, `.midnight-state.json`, and `.midnight-wallet-state/`. |
-| `npm run proof-server:start` / `:stop` | Compose lifecycle for just the proof-server service. |
-
-## Project structure
-
-```
+Technologies Used
+Midnight Network
+Compact
+Compact Standard Library
+Compact Runtime
+Midnight.js
+Zero-Knowledge Proofs
+TypeScript
+Vitest
+Docker
+Docker Compose
+Git
+GitHub
+Project Structure
 mn-demo/
 ├── contracts/
-│   └── hello-world.compact     # Compact source
-├── scripts/
-│   └── e2e-check.ts            # smoke + read-back
+│   ├── counter.compact
+│   └── hello-world.compact
+│
 ├── src/
-│   ├── network.ts              # network selection + state file management
-│   ├── wallet.ts               # wallet construction + sync-state cache
-│   ├── setup.ts                # orchestrator for `npm run setup`
-│   ├── deploy.ts               # deploy the contract
-│   ├── cli.ts                  # interact with deployed contract
-│   └── check-balance.ts        # NIGHT / DUST balance
-├── docker-compose.yml          # node + indexer + proof-server
-├── .midnight-state.json        # written by deploy (gitignored)
-├── .midnight-wallet-state/     # serialized sync state per network (gitignored)
+│   ├── cli.ts
+│   ├── deploy.ts
+│   ├── check-balance.ts
+│   ├── network.ts
+│   ├── setup.ts
+│   ├── wallet-state.ts
+│   └── wallet.ts
+│
+├── tests/
+│   └── counter.test.ts
+│
+├── screenshots/
+│   └── Level 1 project evidence
+│
+├── docker-compose.yml
 ├── package.json
-└── tsconfig.json
-```
+├── package-lock.json
+├── tsconfig.json
+└── .gitignore
 
-## Compact compiler version
+Generated contract artifacts are created inside:
 
-`.compact-version` at the create-mn-app repo root pinned the compiler
-version this project was scaffolded against. To upgrade your local
-compiler to that version:
+contracts/managed/counter/
 
-```bash
-compact update <version>
-compact use <version>
-```
+These generated artifacts are ignored by Git.
+
+Requirements
+Node.js 22+
+Docker with Docker Compose
+Compact compiler
+Git
+Installation
+
+Install the project dependencies:
+
+npm install
+Local Midnight Development Network
+
+The project uses a local Midnight development network through Docker Compose.
+
+Start the services:
+
+docker compose up -d
+
+Check the running containers:
+
+docker ps
+
+The local environment contains:
+
+Service	Port	Purpose
+Midnight Node	9944	Local blockchain node
+Indexer	8088	Blockchain data and indexing
+Proof Server	6300	Zero-knowledge proof generation
+
+The local network was successfully started with all required services running.
+
+To stop the local network:
+
+docker compose down
+Compile the Counter Contract
+
+Compile the Compact contract:
+
+npm run compile
+
+Successful compilation produces:
+
+Compiling 1 circuits:
+circuit "increment" (k=7, rows=91)
+
+The generated contract is stored under:
+
+contracts/managed/counter/
+
+The generated artifacts include the contract interface, circuit information, prover/verifier keys, and ZK circuit artifacts.
+
+Automated Tests
+
+The project uses Vitest for testing.
+
+Run:
+
+npm test
+
+Current test result:
+
+Test Files  1 passed
+Tests       3 passed
+
+The tests cover:
+
+Private secret initialization
+Positive secret validation
+Public counter increment logic
+TypeScript Validation
+
+Run:
+
+npx tsc --noEmit
+
+The project passes TypeScript validation without errors.
+
+Wallet Setup
+
+Check the local wallet balance:
+
+npm run check-balance
+
+The local wallet successfully synchronized with the Midnight development network and was funded with tNight and DUST.
+
+The wallet was ready for contract deployment and transaction processing.
+
+Contract Deployment
+
+After starting the local network and compiling the contract, deploy the Counter contract:
+
+npm run deploy
+
+The contract was successfully deployed to the local undeployed network.
+
+Deployed Contract Address
+363d721dcace17e12999b7407fc6e9145b7685267699f8512ae59d684a8c6d70
+
+Deployment information is stored locally in:
+
+.midnight-state.json
+
+This file is ignored by Git and is not included in the repository.
+
+Counter CLI
+
+Start the interactive Counter CLI:
+
+npm run cli
+
+The CLI provides:
+
+1. Increment counter
+2. Read current count
+3. Check wallet balance
+4. Exit
+
+The CLI successfully:
+
+Restores the wallet
+Synchronizes with the local network
+Displays the wallet balance
+Connects to the deployed Counter contract
+Provides the Counter interaction menu
+Project Screenshots
+
+The screenshots/ directory contains evidence collected during the Level 1 implementation.
+
+The screenshots document the major development stages, including:
+
+Counter contract compilation
+Automated tests
+TypeScript validation
+Docker services
+Wallet balance
+Contract deployment
+CLI connection
+Git commit and GitHub submission
+Transaction Status
+
+The project successfully demonstrates:
+
+Compact Counter contract creation
+Public ledger state
+Private witness
+Selective disclosure
+Circuit compilation
+ZK circuit artifact generation
+Automated tests
+TypeScript validation
+Local Midnight development network
+Wallet synchronization
+Wallet funding
+Contract deployment
+CLI connection
+Git commit
+GitHub push
+
+During the final CLI transaction test, the increment() transaction encountered the following Midnight.js runtime error:
+
+Error: expected instance of StateValue
+
+The error occurs during Midnight.js transaction state processing.
+
+Therefore, this project does not claim that the on-chain increment() transaction was successfully completed.
+
+The project demonstrates the Level 1 contract structure, privacy model, compilation, testing, local deployment, and CLI integration.
+
+Runtime Dependency Alignment
+
+The relevant Midnight runtime dependency was aligned to:
+
+@midnight-ntwrk/onchain-runtime-v3 = 3.0.0
+
+The dependency tree was checked to ensure that the relevant Midnight packages use the same runtime version.
+
+Level 1 Completion Summary
+Level 1 Requirement	Status
+Compact Counter contract	Complete
+Public ledger state	Complete
+Private witness	Complete
+Selective disclosure	Complete
+Zero-knowledge circuit	Compiled
+Contract testing	Complete — 3/3 tests passed
+TypeScript validation	Passed
+Local Midnight network	Complete
+Wallet synchronization	Complete
+Wallet funding	Complete
+Contract deployment	Complete
+CLI connection	Complete
+Screenshots/evidence	Complete
+Git commit	Complete
+GitHub push	Complete
+Successful on-chain increment	Runtime issue
+Security Note
+
+The local development environment uses a predefined development wallet/seed to provide funds on the local devnet.
+
+This setup is intended for local development and testing only.
+
+Do not use development seeds or private keys on public testnets, mainnet, or any environment containing real value.
+
+Never commit:
+
+Wallet recovery phrases
+Private keys
+Wallet seeds
+Passwords
+.env files
+Private state
+Other sensitive credentials
+GitHub Repository
+
+https://github.com/vaishnavi-87/midnight-level1-counter
+
+Author
+
+Vaishnavi Raut
+
+Blockchain Technology Student
+Pune, Maharashtra
