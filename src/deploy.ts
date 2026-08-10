@@ -4,6 +4,7 @@
  * Non-interactive: scaffold → npm run setup runs straight through.
  * No readline prompts, no .midnight-seed file.
  */
+import * as Counter from '../contracts/managed/counter/contract/index.js';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { resolveNetwork, getOrCreateWallet, formatWalletBackupNotice, recordDeployment } from './network';
@@ -25,7 +26,7 @@ globalThis.WebSocket = WebSocket;
 
 // Identifier under which this contract's private state is stored. The
 // hello-world contract has no witnesses, so its private state is empty ({}).
-const PRIVATE_STATE_ID = 'helloWorldPrivateState';
+const PRIVATE_STATE_ID = 'counterPrivateState';
 
 // ─── Network configuration ─────────────────────────────────────────────────────
 //
@@ -71,7 +72,7 @@ async function waitForProofServer(maxAttempts = 60, delayMs = 2000): Promise<boo
 // ─── Compiled contract loading ─────────────────────────────────────────────────
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const zkConfigPath = path.resolve(__dirname, '..', 'contracts', 'managed', 'hello-world');
+const zkConfigPath = path.resolve(__dirname, '..', 'contracts', 'managed', 'counter');
 const contractPath = path.join(zkConfigPath, 'contract', 'index.js');
 
 if (!fs.existsSync(contractPath)) {
@@ -79,10 +80,19 @@ if (!fs.existsSync(contractPath)) {
   process.exit(1);
 }
 
-const HelloWorld = await import(pathToFileURL(contractPath).href);
+type CounterPrivateState = {
+  secret: bigint;
+};
 
-const compiledContract = CompiledContract.make('hello-world', HelloWorld.Contract).pipe(
-  CompiledContract.withVacantWitnesses,
+const compiledContract = CompiledContract.make<
+  Counter.Contract<CounterPrivateState>
+>(
+  'counter',
+  Counter.Contract<CounterPrivateState>
+).pipe(
+  CompiledContract.withWitnesses({
+    secret: (context) => [context.privateState, context.privateState.secret],
+  }),
   CompiledContract.withCompiledFileAssets(zkConfigPath),
 );
 
@@ -117,7 +127,7 @@ async function createProviders(walletCtx: WalletContext) {
 
   return {
     privateStateProvider: levelPrivateStateProvider({
-      privateStateStoreName: 'hello-world-state',
+      privateStateStoreName: 'counter-private-state',
       accountId,
       privateStoragePasswordProvider: () => privateStatePassword,
     }),
@@ -298,7 +308,7 @@ async function main() {
         compiledContract: compiledContract as any,
         args: [],
         privateStateId: PRIVATE_STATE_ID,
-        initialPrivateState: {},
+        initialPrivateState: { secret: 1n},
       });
       break;
     } catch (err: any) {

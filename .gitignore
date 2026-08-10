@@ -58,3 +58,8 @@ temp/
 
 # Midnight wallet sync state (per-network serialized wallet state cache)
 .midnight-wallet-state/
+# Local Midnight development database
+midnight-level-db/
+
+# Editor backup files
+*.save

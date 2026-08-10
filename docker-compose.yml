@@ -82,7 +82,7 @@ services:
     # Avoid 9.0.0-rc.x tags: pre-release.
     image: midnightntwrk/proof-server:8.1.0
     container_name: mn-demo-proof-server
-    command: ["midnight-proof-server -v"]
+    command: ["midnight-proof-server"]
     ports:
       - "6300:6300"
     environment:

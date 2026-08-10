@@ -1,0 +1,33 @@
+
+pragma language_version >= 0.23;
+
+import CompactStandardLibrary;
+
+/*
+ * LEVEL 1 PRIVACY COUNTER
+ *
+ * PUBLIC:
+ * - count is public ledger state.
+ *
+ * PRIVATE:
+ * - secret() is a private witness supplied off-chain.
+ * - The secret itself is never stored on the public ledger.
+ *
+ * DISCLOSE:
+ * - The boolean result of checking the secret is deliberately disclosed.
+ * - The secret itself is never disclosed.
+ */
+
+export ledger count: Uint<32>;
+
+witness secret(): Uint<32>;
+
+export circuit increment(): [] {
+    const privateSecret = secret();
+
+    const isValid = privateSecret > 0;
+
+    disclose(isValid);
+
+    count = count + 1 as Uint<32>;
+}
