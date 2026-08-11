@@ -17,10 +17,12 @@
     "proof-server:stop": "docker compose down",
     "clean": "rm -rf contracts/managed .midnight-state.json .midnight-wallet-state",
     "test": "vitest run",
-    "test:e2e": "tsx scripts/e2e-check.ts"
+    "test:e2e": "tsx scripts/e2e-check.ts",
+    "dev": "vite"
   },
   "dependencies": {
     "@midnight-ntwrk/compact-runtime": "0.16.0",
+    "@midnight-ntwrk/dapp-connector-api": "^4.0.1",
     "@midnight-ntwrk/midnight-js-contracts": "4.1.1",
     "@midnight-ntwrk/midnight-js-http-client-proof-provider": "4.1.1",
     "@midnight-ntwrk/midnight-js-indexer-public-data-provider": "4.1.1",
@@ -33,12 +35,17 @@
     "@midnight-ntwrk/onchain-runtime-v3": "3.0.0",
     "@midnight-ntwrk/wallet-sdk": "1.2.0",
     "@scure/bip39": "2.2.0",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
     "rxjs": "^7.8.2",
     "ws": "^8.21.1"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.4",
     "@types/ws": "^8.18.1",
+    "@vitejs/plugin-react": "^6.0.5",
     "tsx": "^4.23.1",
     "typescript": "^6.0.3",
     "vitest": "^4.1.10"

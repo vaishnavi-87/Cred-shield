@@ -1,0 +1,89 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #111827;
+}
+
+.app {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+.card {
+  width: 100%;
+  max-width: 500px;
+  padding: 32px;
+  border-radius: 16px;
+  background: white;
+  text-align: center;
+}
+
+.status {
+  margin: 25px 0;
+  padding: 15px;
+  border-radius: 8px;
+  background: #f3f4f6;
+  display: flex;
+  justify-content: space-between;
+}
+
+button {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.privacy {
+  margin-top: 20px;
+  padding: 12px;
+  border-radius: 8px;
+  background: #f3f4f6;
+  font-size: 14px;
+}
+
+.wallet-section {
+  margin-top: 25px;
+}
+
+.address {
+  margin: 15px 0;
+  padding: 12px;
+  background: #f3f4f6;
+  border-radius: 8px;
+  text-align: left;
+}
+
+.address span {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.address code {
+  display: block;
+  word-break: break-all;
+  font-size: 12px;
+}
+
+.error {
+  margin-top: 15px;
+  padding: 12px;
+  border-radius: 8px;
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
