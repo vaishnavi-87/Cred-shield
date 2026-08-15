@@ -50,16 +50,19 @@ Evidence for the Level 1 submission is stored in:
 screenshots/
 The evidence includes:
 
+| Step | Screenshot |
+| --- | --- |
+| Compact compile (circuits + keys generated) | [`screenshots/01-counter-compilation.png`](screenshots/01-counter-compilation.png) |
+| Contract deployed to Preview (address shown) | [`screenshots/06-contract-deployed.png`](screenshots/06-contract-deployed.png) |
+
 | #  | Screenshot                       | Evidence                     |
 | -- | -------------------------------- | ---------------------------- |
-| 01 | `01-counter-compilation.png` | Compact contract compilation |
-| 02 | `02-tests-passed.png`        | Automated tests              |
-| 03 | `03-typescript-check.png`    | TypeScript validation        |
-| 04 | `04-docker-running.png`      | Local Midnight services      |
-| 05 | `05-wallet-funded.png`       | Wallet funding/balance       |
-| 06 | `06-contract-deployed.png`   | Contract deployment          |
-| 07 | `07-cli-connected.png`       | CLI connection               |
-| 08 | `08-git-commit.png`          | Git/commit evidence          |
+| 01 | `02-tests-passed.png`        | Automated tests              |
+| 02 | `03-typescript-check.png`    | TypeScript validation        |
+| 03 | `04-docker-running.png`      | Local Midnight services      |
+| 04 | `05-wallet-funded.png`       | Wallet funding/balance       |
+| 05 | `07-cli-connected.png`       | CLI connection               |
+| 06 | `08-git-commit.png`          | Git/commit evidence          |
 
 
 
