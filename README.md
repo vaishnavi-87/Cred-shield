@@ -44,7 +44,7 @@ The Counter contains:
 export ledger count: Uint<32>;
 witness secret(): Uint<32>;
 and an increment circuit that validates the private secret, selectively discloses the validation result, and updates the public counter.
-```
+
 # Screenshots
 Evidence for the Level 1 submission is stored in:
 screenshots/
@@ -55,6 +55,7 @@ The evidence includes:
 | Compact compile (circuits + keys generated) | [`screenshots/01-counter-compilation.png`](screenshots/01-counter-compilation.png) |
 | Contract deployed to Preview (address shown) | [`screenshots/06-contract-deployed.png`](screenshots/06-contract-deployed.png) |
 
+```
 | #  | Screenshot                       | Evidence                     |
 | -- | -------------------------------- | ---------------------------- |
 | 01 | `02-tests-passed.png`        | Automated tests              |
