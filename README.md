@@ -58,6 +58,7 @@ The canonical Level 1 submission deployment is on the Midnight Preview public te
 The Preview deployment is the canonical submission deployment.
 
 The Preview deployment was successfully completed on:
+
 2026-08-14
 
 Deployment state is persisted locally in:
@@ -322,3 +323,20 @@ mn-demo/
 ├── tsconfig.json
 └── .gitignore
 
+# Level 1 Submission Checklist
+Before submission, verify:
+
+[ ] contracts/counter.compact exists
+[ ] contracts/managed/counter/ exists
+[ ] managed artifacts are tracked by Git
+[ ] npm run compile succeeds
+[ ] npm test succeeds
+[ ] npx tsc --noEmit succeeds
+[ ] Preview deployment address is present in README
+[ ] Preview deployment is the canonical deployment
+[ ] README does not contain wallet secrets
+[ ] .midnight-state.json is not committed
+[ ] .midnight-wallet-state/ is not committed
+[ ] screenshots/ contains submission evidence
+[ ] Git history contains at least 5 meaningful commits
+[ ] GitHub repository is pushed
