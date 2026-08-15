@@ -32,6 +32,10 @@ secret
 isValid
 The important privacy property is that the private witness can be used inside the circuit without deliberately publishing the secret itself.
 
+## Initial Product Idea
+
+CredShield is a privacy-preserving credit verification engine for DeFi lending that allows users to prove they meet predefined financial requirements without revealing their actual financial information. A user's credit score or bank balance can be provided privately to a Compact circuit, which verifies conditions such as a minimum credit score and selectively discloses only the eligibility result. This demonstrates how Midnight's privacy and zero-knowledge capabilities can enable financial verification while keeping sensitive user data private.
+
 # Contract
 The main Compact contract is:
 contracts/counter.compact
@@ -45,6 +49,18 @@ and an increment circuit that validates the private secret, selectively disclose
 Evidence for the Level 1 submission is stored in:
 screenshots/
 The evidence includes:
+
+| #  | Screenshot                       | Evidence                     |
+| -- | -------------------------------- | ---------------------------- |
+| 01 | `01-counter-compilation.png.png` | Compact contract compilation |
+| 02 | `02-tests-passed.png.png`        | Automated tests              |
+| 03 | `03-typescript-check.png.png`    | TypeScript validation        |
+| 04 | `04-docker-running.png.png`      | Local Midnight services      |
+| 05 | `05-wallet-funded.png.png`       | Wallet funding/balance       |
+| 06 | `06-contract-deployed.png.png`   | Contract deployment          |
+| 07 | `07-cli-connected.png.png`       | CLI connection               |
+| 08 | `08-git-commit.png.png`          | Git/commit evidence          |
+
 
 
 # Deployed Contract
