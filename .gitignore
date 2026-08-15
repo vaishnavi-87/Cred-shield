@@ -59,3 +59,7 @@ midnight-level-db/
 
 # Editor backup files
 *.save
+
+# Midnight wallet backup files
+.midnight-state.backup.json
+.midnight-wallet-state.backup/
