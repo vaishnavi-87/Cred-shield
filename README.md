@@ -52,14 +52,14 @@ The evidence includes:
 
 | #  | Screenshot                       | Evidence                     |
 | -- | -------------------------------- | ---------------------------- |
-| 01 | `01-counter-compilation.png.png` | Compact contract compilation |
-| 02 | `02-tests-passed.png.png`        | Automated tests              |
-| 03 | `03-typescript-check.png.png`    | TypeScript validation        |
-| 04 | `04-docker-running.png.png`      | Local Midnight services      |
-| 05 | `05-wallet-funded.png.png`       | Wallet funding/balance       |
-| 06 | `06-contract-deployed.png.png`   | Contract deployment          |
-| 07 | `07-cli-connected.png.png`       | CLI connection               |
-| 08 | `08-git-commit.png.png`          | Git/commit evidence          |
+| 01 | `01-counter-compilation.png` | Compact contract compilation |
+| 02 | `02-tests-passed.png`        | Automated tests              |
+| 03 | `03-typescript-check.png`    | TypeScript validation        |
+| 04 | `04-docker-running.png`      | Local Midnight services      |
+| 05 | `05-wallet-funded.png`       | Wallet funding/balance       |
+| 06 | `06-contract-deployed.png`   | Contract deployment          |
+| 07 | `07-cli-connected.png`       | CLI connection               |
+| 08 | `08-git-commit.png`          | Git/commit evidence          |
 
 
 
@@ -304,6 +304,7 @@ The verified deployment requirement is satisfied by the successful deployment of
 | `npx tsc --noEmit`        | Validate TypeScript                  |
 | `docker compose up -d`    | Start local development services     |
 | `docker compose down`     | Stop local development services      |
+
 
 # Project Structure
 
