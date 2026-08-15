@@ -44,7 +44,7 @@ The Counter contains:
 export ledger count: Uint<32>;
 witness secret(): Uint<32>;
 and an increment circuit that validates the private secret, selectively discloses the validation result, and updates the public counter.
-
+```
 # Screenshots
 Evidence for the Level 1 submission is stored in:
 screenshots/
@@ -64,7 +64,7 @@ The evidence includes:
 | 05 | `07-cli-connected.png`       | CLI connection               |
 | 06 | `08-git-commit.png`          | Git/commit evidence          |
 
-
+```
 
 # Deployed Contract
 The canonical Level 1 submission deployment is on the Midnight Preview public test network.
@@ -84,7 +84,7 @@ Deployment state is persisted locally in:
 .midnight-state.json
 
 This file is intentionally excluded from Git because it contains wallet secrets.
-
+```
 ## Quick Start
 # Requirements
 -Node.js 22+
@@ -92,17 +92,18 @@ This file is intentionally excluded from Git because it contains wallet secrets.
 -Docker Compose
 -Compact compiler
 -Git
-
+```
 Install dependencies:
 npm install
-
+```
+```
 # Compile
 Compile the Counter contract with:
 npm run compile
 
 Successful compilation produces:
 Compiling 1 circuits:
-  circuit "increment" (k=7, rows=91)
+  circuit "increment" (k=7, rows=97)
 
 The compiled contract artifacts are generated under:
 contracts/managed/counter/
@@ -114,7 +115,7 @@ compiler/
 contract/
 keys/
 zkir/
-
+```
 Example generated files include:
 
 contracts/managed/counter/compiler/contract-info.json
@@ -125,7 +126,7 @@ contracts/managed/counter/keys/increment.prover
 contracts/managed/counter/keys/increment.verifier
 contracts/managed/counter/zkir/increment.bzkir
 contracts/managed/counter/zkir/increment.zkir
-
+```
 # Automated Tests
 The project uses Vitest.
 
@@ -142,13 +143,13 @@ The tests cover:
 Expected result:
 Test Files  1 passed
 Tests       3 passed
-
+```
 # TypeScript Validation
 Run:
 npx tsc --noEmit
 
 The project passes TypeScript validation without errors.
-
+```
 # Local Devnet
 The project includes a local Midnight development environment through Docker Compose.
 
@@ -170,7 +171,7 @@ The proof server is required by the deployment process when using the local proo
 
 Stop the services:
 docker compose down
-
+```
 # Networks
 The project supports three network configurations:
 
@@ -191,21 +192,21 @@ Active network: preview
 
 # Preview Wallet
 The Preview deployment uses a public testnet wallet.
-
+```
 The wallet was successfully:
 1. Created/configured for Preview.
 2. Funded with testnet tNIGHT.
 3. Synchronized with the Preview network.
 4. Used to generate the required DUST.
 5. Used to deploy the Counter contract.
-
+```
 The final Preview deployment successfully reported:
 ✓ Synced with network.
 Balance: 5,000,000,000 tNight
 DUST tokens ready!
 
 Wallet recovery phrases and seeds are stored only in local state and are not committed to GitHub.
-
+```
 # Wallet Security
 Public-network wallet recovery phrases and seeds are sensitive credentials.
 
@@ -226,7 +227,7 @@ Passwords
 Private credentials
 
 The .gitignore configuration excludes sensitive wallet state from the repository.
-
+```
 # Contract Deployment
 The Counter contract was deployed to Midnight Preview using:
 npm run deploy
@@ -249,7 +250,7 @@ Preview contract address
 
 The successful Preview contract address is:
 0f11691eb93ff25b840ada38e3976c1c23a5e358b7dc08ba7582fd5ce3c9e19e
-
+```
 # Counter CLI
 The project contains an interactive Counter CLI.
 
@@ -263,7 +264,7 @@ The CLI provides functionality for:
 4. Exit
 
 The CLI is designed to restore the wallet, synchronize with the configured Midnight network, and interact with the deployed Counter contract.
-
+```
 # Transaction Status
 
 -The project successfully demonstrates:
@@ -282,7 +283,7 @@ The CLI is designed to restore the wallet, synchronize with the configured Midni
 -Preview network deployment
 -CLI integration
 -Git/GitHub submission
-
+```
 During development, an earlier CLI transaction attempt encountered:
 
 Error: expected instance of StateValue
@@ -292,7 +293,7 @@ This occurred during Midnight.js transaction state processing.
 Therefore, the project does not claim that the earlier CLI increment() transaction was successfully finalized on-chain.
 
 The verified deployment requirement is satisfied by the successful deployment of the Counter contract to the Midnight Preview public test network.
-
+```
 # Available Scripts
 
 | Command                   | Description                          |
@@ -308,9 +309,9 @@ The verified deployment requirement is satisfied by the successful deployment of
 | `docker compose up -d`    | Start local development services     |
 | `docker compose down`     | Stop local development services      |
 
-
+```
 # Project Structure
-
+```
 mn-demo/
 ├── contracts/
 │   ├── counter.compact
@@ -342,7 +343,8 @@ mn-demo/
 ├── package-lock.json
 ├── tsconfig.json
 └── .gitignore
-
+```
+```
 # Level 1 Submission Checklist
 Before submission, verify:
 
@@ -360,3 +362,4 @@ Before submission, verify:
 [ ] screenshots/ contains submission evidence
 [ ] Git history contains at least 5 meaningful commits
 [ ] GitHub repository is pushed
+```
