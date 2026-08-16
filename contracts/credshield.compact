@@ -1,0 +1,48 @@
+pragma language_version >= 0.23;
+
+import CompactStandardLibrary;
+
+/*
+ * CRED SHIELD — LEVEL 2
+ *
+ * Privacy-preserving creditworthiness verification.
+ *
+ * PRIVATE:
+ * - creditScore()
+ * - dti()
+ * - bankBalance()
+ *
+ * These values are supplied as private witnesses.
+ * They are used inside the ZK circuit but are NOT stored
+ * as public ledger state.
+ *
+ * PUBLIC:
+ * - verified: whether the borrower satisfied the
+ *   predefined eligibility conditions.
+ *
+ * DISCLOSE:
+ * - Only the eligibility result is disclosed.
+ *
+ * The exact credit score, DTI and bank balance remain private.
+ */
+
+export ledger verified: Boolean;
+
+witness creditScore(): Uint<32>;
+witness dti(): Uint<32>;
+witness bankBalance(): Uint<64>;
+
+export circuit verifyCreditworthiness(): [] {
+    const score = creditScore();
+    const debtToIncome = dti();
+    const balance = bankBalance();
+
+    const scoreEligible = score >= 700 as Uint<32>;
+    const dtiEligible = debtToIncome <= 40 as Uint<32>;
+    const balanceEligible = balance >= 1000 as Uint<64>;
+
+    const isEligible =
+        scoreEligible && dtiEligible && balanceEligible;
+
+    verified = disclose(isEligible);
+}

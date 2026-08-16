@@ -63,3 +63,10 @@ midnight-level-db/
 # Midnight wallet backup files
 .midnight-state.backup.json
 .midnight-wallet-state.backup/
+
+# Additional sensitive wallet/secret files
+*.mnwallet
+*.wallet
+*.seed
+wallet-seed*
+secret*

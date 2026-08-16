@@ -15,38 +15,63 @@ function WalletConnect({
 }: WalletConnectProps) {
   const connected = Boolean(address);
 
+  // Show a shortened address: first 8 + "…" + last 6 chars
+  const shortAddress = address
+    ? `${address.slice(0, 8)}…${address.slice(-6)}`
+    : null;
+
   return (
     <div className="wallet-section">
-      <div className="status">
-        <span>Wallet Status</span>
+      <div className="wallet-status">
+        <div>
+          <span className="label">Wallet</span>
+          <strong>
+            {connected ? "1AM Wallet Connected" : "Not connected"}
+          </strong>
+        </div>
 
-        <strong>
-          {connected ? "Connected" : "Disconnected"}
-        </strong>
+        <span className={connected ? "status-pill connected" : "status-pill"}>
+          {connected ? "● Connected" : "○ Disconnected"}
+        </span>
       </div>
 
       {connected && address && (
-        <div className="address">
-          <span>Preprod Address</span>
-          <code>{address}</code>
+        <div className="wallet-address">
+          <span>Midnight Preview</span>
+          <code title={address}>{shortAddress}</code>
         </div>
       )}
 
       {!connected ? (
         <button
+          id="connect-wallet-btn"
+          className="primary-button"
           onClick={onConnect}
           disabled={isConnecting}
         >
-          {isConnecting ? "Connecting to Lace..." : "Connect Lace"}
+          {isConnecting
+            ? "Waiting for 1AM Wallet…"
+            : "Connect Wallet"}
         </button>
       ) : (
-        <button onClick={onDisconnect}>
-          Disconnect
+        <button
+          id="disconnect-wallet-btn"
+          className="secondary-button"
+          onClick={onDisconnect}
+        >
+          Disconnect Wallet
         </button>
       )}
 
+      {connected && (
+        <p className="wallet-hint">
+          1AM Wallet keeps this site authorized until you
+          revoke it inside the 1AM Wallet extension.
+        </p>
+      )}
+
       {error && (
-        <div className="error">
+        <div className="error-message">
           {error}
         </div>
       )}

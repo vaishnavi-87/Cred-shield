@@ -1,10 +1,10 @@
 /**
- * Deploy mn-demo contract to a Midnight network (undeployed by default; use --network preview|preprod for public networks).
+ * Deploy CredShield contract to a Midnight network (undeployed by default; use --network preview|preprod for public networks).
  *
  * Non-interactive: scaffold → npm run setup runs straight through.
  * No readline prompts, no .midnight-seed file.
  */
-import * as Counter from '../contracts/managed/counter/contract/index.js';
+import * as CredShield from '../contracts/managed/credshield/contract/index.js';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { resolveNetwork, getOrCreateWallet, formatWalletBackupNotice, recordDeployment } from './network';
@@ -26,7 +26,7 @@ globalThis.WebSocket = WebSocket;
 
 // Identifier under which this contract's private state is stored. The
 // hello-world contract has no witnesses, so its private state is empty ({}).
-const PRIVATE_STATE_ID = 'counterPrivateState';
+const PRIVATE_STATE_ID = 'credshieldPrivateState';
 
 // ─── Network configuration ─────────────────────────────────────────────────────
 //
@@ -72,7 +72,7 @@ async function waitForProofServer(maxAttempts = 60, delayMs = 2000): Promise<boo
 // ─── Compiled contract loading ─────────────────────────────────────────────────
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const zkConfigPath = path.resolve(__dirname, '..', 'contracts', 'managed', 'counter');
+const zkConfigPath = path.resolve(__dirname, '..', 'contracts', 'managed', 'credshield');
 const contractPath = path.join(zkConfigPath, 'contract', 'index.js');
 
 if (!fs.existsSync(contractPath)) {
@@ -80,18 +80,33 @@ if (!fs.existsSync(contractPath)) {
   process.exit(1);
 }
 
-type CounterPrivateState = {
-  secret: bigint;
+type CredShieldPrivateState = {
+  creditScore: bigint;
+  dti: bigint;
+  bankBalance: bigint;
 };
 
 const compiledContract = CompiledContract.make<
-  Counter.Contract<CounterPrivateState>
+  CredShield.Contract<CredShieldPrivateState>
 >(
-  'counter',
-  Counter.Contract<CounterPrivateState>
+  'credshield',
+  CredShield.Contract<CredShieldPrivateState>
 ).pipe(
   CompiledContract.withWitnesses({
-    secret: (context) => [context.privateState, context.privateState.secret],
+    creditScore: (context) => [
+      context.privateState,
+      context.privateState.creditScore,
+    ],
+
+    dti: (context) => [
+      context.privateState,
+      context.privateState.dti,
+    ],
+
+    bankBalance: (context) => [
+      context.privateState,
+      context.privateState.bankBalance,
+    ],
   }),
   CompiledContract.withCompiledFileAssets(zkConfigPath),
 );
@@ -127,7 +142,7 @@ async function createProviders(walletCtx: WalletContext) {
 
   return {
     privateStateProvider: levelPrivateStateProvider({
-      privateStateStoreName: 'counter-private-state',
+      privateStateStoreName: 'credShield-private-state',
       accountId,
       privateStoragePasswordProvider: () => privateStatePassword,
     }),
@@ -143,7 +158,7 @@ async function createProviders(walletCtx: WalletContext) {
 
 async function main() {
   console.log('\n╔══════════════════════════════════════════════════════════════╗');
-  console.log(`║  Deploy mn-demo to ${network}`);
+  console.log(`║  Deploy CredShield to ${network}`);
   console.log('╚══════════════════════════════════════════════════════════════╝\n');
 
   const seed = SEED;
@@ -308,7 +323,11 @@ async function main() {
         compiledContract: compiledContract as any,
         args: [],
         privateStateId: PRIVATE_STATE_ID,
-        initialPrivateState: { secret: 1n},
+        initialPrivateState: {
+  creditScore: 750n,
+  dti: 30n,
+  bankBalance: 5000n,
+},
       });
       break;
     } catch (err: any) {

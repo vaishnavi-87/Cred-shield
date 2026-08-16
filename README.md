@@ -1,366 +1,286 @@
-# Midnight Level 1 — Privacy Counter
-Level 1 · **New Moon** submission for the Midnight builder program.
-A privacy-aware Counter smart contract built on the Midnight Network using Compact.
-The project demonstrates the core Midnight privacy model by separating public ledger state from private witness data and selectively disclosing only the information required by the circuit.
+# CredShield
 
-## Project Idea
-The Privacy Counter is a simple Midnight smart contract designed to demonstrate how private information can be used inside a zero-knowledge circuit while keeping the original private value hidden.
-The contract maintains a public counter on the ledger.
-A private `secret` value is provided through a Compact witness. The circuit checks whether the secret is valid and deliberately discloses only the boolean validation result.
-The actual secret is not stored as public ledger state.
+**Level 2 · Midnight Builder Challenge · Rise In**
 
-This provides a simple demonstration of the Midnight pattern:
+CredShield is a privacy-preserving credit-scoring engine. It lets a borrower
+prove on-chain that they satisfy lending eligibility conditions without
+revealing their credit score, debt-to-income ratio (DTI), bank balance,
+financial records, or identity. The proof is generated locally from the
+borrower's private inputs, approved and submitted by the 1AM Wallet, and
+verified against a contract deployed on Midnight Preview — only the public
+eligibility result is ever written to the ledger.
 
-Private witness
-      |
-      v
-Use private information inside circuit
-      |
-      v
-Selective disclosure
-      |
-      v
-Public ledger state
+---
 
-# Public information
-count
+## Project
 
-# Private information
-secret
+| Field | Value |
+|---|---|
+| **Project** | CredShield — Private Creditworthiness Verification |
+| **Wallet** | 1AM Wallet |
+| **Network** | Midnight Preview |
+| **Circuit** | `verifyCreditworthiness` |
+| **Contract** | `4e9bdd092a84c65e48b7b4a87f4c0a7b96ac5dcdc0b773a170ff3d11acc6db9f` |
 
-# Deliberately disclosed information
-isValid
-The important privacy property is that the private witness can be used inside the circuit without deliberately publishing the secret itself.
+---
 
-## Initial Product Idea
+## Contract Address
 
-CredShield is a privacy-preserving credit verification engine for DeFi lending that allows users to prove they meet predefined financial requirements without revealing their actual financial information. A user's credit score or bank balance can be provided privately to a Compact circuit, which verifies conditions such as a minimum credit score and selectively discloses only the eligibility result. This demonstrates how Midnight's privacy and zero-knowledge capabilities can enable financial verification while keeping sensitive user data private.
+| Network | Address |
+|---|---|
+| Midnight Preview | `4e9bdd092a84c65e48b7b4a87f4c0a7b96ac5dcdc0b773a170ff3d11acc6db9f` |
 
-# Contract
-The main Compact contract is:
-contracts/counter.compact
-
-The Counter contains:
-export ledger count: Uint<32>;
-witness secret(): Uint<32>;
-and an increment circuit that validates the private secret, selectively discloses the validation result, and updates the public counter.
-
-# Screenshots
-Evidence for the Level 1 submission is stored in:
-screenshots/
-The evidence includes:
-
-| Step | Screenshot |
-| --- | --- |
-| Compact compile (circuits + keys generated) | [`screenshots/01-counter-compilation.png`](screenshots/01-counter-compilation.png) |
-| Contract deployed to Preview (address shown) | [`screenshots/06-contract-deployed.png`](screenshots/06-contract-deployed.png) |
+The contract is deployed on the **Midnight Preview** test network. It is
+reachable through the public Preview indexer:
 
 ```
-| #  | Screenshot                       | Evidence                     |
-| -- | -------------------------------- | ---------------------------- |
-| 01 | `02-tests-passed.png`        | Automated tests              |
-| 02 | `03-typescript-check.png`    | TypeScript validation        |
-| 03 | `04-docker-running.png`      | Local Midnight services      |
-| 04 | `05-wallet-funded.png`       | Wallet funding/balance       |
-| 05 | `07-cli-connected.png`       | CLI connection               |
-| 06 | `08-git-commit.png`          | Git/commit evidence          |
-
+https://indexer.preview.midnight.network
 ```
 
-# Deployed Contract
-The canonical Level 1 submission deployment is on the Midnight Preview public test network.
+---
 
-| Network                      | Contract address                                                   |
-| ---------------------------- | ------------------------------------------------------------------ |
-| **Preview (public testnet)** | `0f11691eb93ff25b840ada38e3976c1c23a5e358b7dc08ba7582fd5ce3c9e19e` |
-| undeployed (local devnet)    | `1f6822f2bd0455a54226b6b660bbb9630f1847e28c2cabff170630da76dd22f0` |
+## What This Does
 
-The Preview deployment is the canonical submission deployment.
+CredShield allows a borrower to enter their private financial data
+(credit score, DTI, bank balance) into a local browser form. Those values are
+used only as private witness inputs to a Midnight Compact circuit. The
+circuit `verifyCreditworthiness` checks the eligibility conditions:
 
-The Preview deployment was successfully completed on:
+- credit score ≥ 700
+- DTI ≤ 40
+- bank balance ≥ 1,000
 
-2026-08-14
+If all conditions hold, the circuit discloses only the boolean
+`verified = true` to the public ledger. The raw financial values are never
+written to the ledger and never leave the browser as public data.
 
-Deployment state is persisted locally in:
-.midnight-state.json
+---
 
-This file is intentionally excluded from Git because it contains wallet secrets.
-```
-## Quick Start
-# Requirements
--Node.js 22+
--Docker
--Docker Compose
--Compact compiler
--Git
-```
-Install dependencies:
+## Privacy Model
+
+### Private (never disclosed):
+- exact credit score
+- exact DTI
+- exact bank balance
+- financial records
+- identity
+
+### Public (only result disclosed):
+- the verification/eligibility result (`verified = true` or `false`)
+- the contract transaction and contract state required to verify the result
+
+The privacy model is enforced by the ZK circuit itself: private financial
+values are consumed as witnesses inside the proof and are never part of the
+disclosed public state. The frontend never displays or transmits the exact
+values after verification.
+
+### Privacy Claim
+
+> "An observer can verify that the borrower satisfied the eligibility
+> conditions, but cannot see the exact credit score, DTI, bank balance,
+> financial records, or identity."
+
+---
+
+## Tech Stack
+
+- Midnight Network (Preview)
+- Compact (Midnight's smart-contract language)
+- Midnight.js (`midnight-js-*` packages, v4.1.x)
+- 1AM Wallet (Midnight DApp Connector API v4)
+- React 19
+- TypeScript
+- Vite
+
+---
+
+## Prerequisites
+
+- Node.js >= 22
+- **1AM Wallet** browser extension installed and unlocked
+  - Install from: https://1am.xyz
+  - Configure the wallet for **Midnight Preview**
+- Midnight Preview access (the deployed contract is already live)
+
+---
+
+## Run Locally
+
+```bash
+# 1. Install dependencies
 npm install
-```
-```
-# Compile
-Compile the Counter contract with:
+
+# 2. Start the local proof server (optional — 1AM can provide proving)
+npm run proof-server:start
+
+# 3. Compile the CredShield contract (also syncs ZK files to public/credshield)
 npm run compile
 
-Successful compilation produces:
-Compiling 1 circuits:
-  circuit "increment" (k=7, rows=97)
-
-The compiled contract artifacts are generated under:
-contracts/managed/counter/
-
-The managed artifacts are included in the repository for Level 1 submission verification.
-
-The generated directory contains artifacts including:
-compiler/
-contract/
-keys/
-zkir/
-```
-Example generated files include:
-
-contracts/managed/counter/compiler/contract-info.json
-contracts/managed/counter/contract/index.d.ts
-contracts/managed/counter/contract/index.js
-contracts/managed/counter/contract/index.js.map
-contracts/managed/counter/keys/increment.prover
-contracts/managed/counter/keys/increment.verifier
-contracts/managed/counter/zkir/increment.bzkir
-contracts/managed/counter/zkir/increment.zkir
-```
-# Automated Tests
-The project uses Vitest.
-
-Run:
-npm test
-
-The Level 1 test suite contains three tests.
-
-The tests cover:
--Private secret initialization
--Positive secret validation
--Public counter increment logic
-
-Expected result:
-Test Files  1 passed
-Tests       3 passed
-```
-# TypeScript Validation
-Run:
+# 4. Type-check, test, and build
 npx tsc --noEmit
+npm test
+npm run build
 
-The project passes TypeScript validation without errors.
+# 5. Start the frontend
+npm run dev
 ```
-# Local Devnet
-The project includes a local Midnight development environment through Docker Compose.
 
-Start the services:
-docker compose up -d
+Then open http://localhost:5173, click **Connect 1AM Wallet**,
+authorize the connection in the 1AM extension (Midnight Preview),
+enter private test values, and press **Prove My Creditworthiness**.
 
-Check the services:
-docker compose ps
+The 1AM Wallet will prompt for transaction approval. After approval,
+the UI shows **✓ Creditworthiness Verified** once the public contract
+state reports `verified = true`.
 
-The local environment contains:
+---
 
-| Service        | Port | Purpose                         |
-| -------------- | ---- | ------------------------------- |
-| `node`         | 9944 | Midnight blockchain node        |
-| `indexer`      | 8088 | GraphQL blockchain indexer      |
-| `proof-server` | 6300 | Zero-knowledge proof generation |
+## ZK Configuration Files
 
-The proof server is required by the deployment process when using the local proof-server configuration.
-
-Stop the services:
-docker compose down
-```
-# Networks
-The project supports three network configurations:
-
-| Network      | Purpose                            |
-| ------------ | ---------------------------------- |
-| `undeployed` | Local Midnight development network |
-| `preview`    | Midnight public Preview testnet    |
-| `preprod`    | Midnight public Preprod testnet    |
-
-The active network can be checked using:
-npm run network
-
-Switch to Preview:
-npm run network preview
-
-The project was successfully switched to:
-Active network: preview
-
-# Preview Wallet
-The Preview deployment uses a public testnet wallet.
-```
-The wallet was successfully:
-1. Created/configured for Preview.
-2. Funded with testnet tNIGHT.
-3. Synchronized with the Preview network.
-4. Used to generate the required DUST.
-5. Used to deploy the Counter contract.
-```
-The final Preview deployment successfully reported:
-✓ Synced with network.
-Balance: 5,000,000,000 tNight
-DUST tokens ready!
-
-Wallet recovery phrases and seeds are stored only in local state and are not committed to GitHub.
-```
-# Wallet Security
-Public-network wallet recovery phrases and seeds are sensitive credentials.
-
-The following files must never be committed:
-
-.midnight-state.json
-.midnight-state.backup.json
-.midnight-wallet-state/
-.midnight-wallet-state.backup/
-
-The following information must never be committed:
-
-Recovery phrases
-Wallet seeds
-Private keys
-Passwords
-.env files
-Private credentials
-
-The .gitignore configuration excludes sensitive wallet state from the repository.
-```
-# Contract Deployment
-The Counter contract was deployed to Midnight Preview using:
-npm run deploy
-
-The deployment process included:
-
-Wallet setup
-      ↓
-Preview network synchronization
-      ↓
-Wallet funding
-      ↓
-DUST token generation
-      ↓
-Proof server verification
-      ↓
-Compact contract deployment
-      ↓
-Preview contract address
-
-The successful Preview contract address is:
-0f11691eb93ff25b840ada38e3976c1c23a5e358b7dc08ba7582fd5ce3c9e19e
-```
-# Counter CLI
-The project contains an interactive Counter CLI.
-
-Run:
-npm run cli
-
-The CLI provides functionality for:
-1. Increment counter
-2. Read current count
-3. Check wallet balance
-4. Exit
-
-The CLI is designed to restore the wallet, synchronize with the configured Midnight network, and interact with the deployed Counter contract.
-```
-# Transaction Status
-
--The project successfully demonstrates:
--Compact Counter contract development
--Public ledger state
--Private witness data
--Selective disclosure
--Zero-knowledge circuit compilation
--Generated managed contract artifacts
--Automated testing
--TypeScript validation
--Wallet setup
--Wallet synchronization
--Testnet funding
--DUST generation
--Preview network deployment
--CLI integration
--Git/GitHub submission
-```
-During development, an earlier CLI transaction attempt encountered:
-
-Error: expected instance of StateValue
-
-This occurred during Midnight.js transaction state processing.
-
-Therefore, the project does not claim that the earlier CLI increment() transaction was successfully finalized on-chain.
-
-The verified deployment requirement is satisfied by the successful deployment of the Counter contract to the Midnight Preview public test network.
-```
-# Available Scripts
-
-| Command                   | Description                          |
-| ------------------------- | ------------------------------------ |
-| `npm run compile`         | Compile the Compact Counter contract |
-| `npm run deploy`          | Deploy the compiled Counter contract |
-| `npm run cli`             | Start the Counter interaction CLI    |
-| `npm run check-balance`   | Check wallet balance                 |
-| `npm run network`         | Display the active network           |
-| `npm run network preview` | Switch to Preview                    |
-| `npm test`                | Run automated tests                  |
-| `npx tsc --noEmit`        | Validate TypeScript                  |
-| `docker compose up -d`    | Start local development services     |
-| `docker compose down`     | Stop local development services      |
+The circuit proving/verifying keys and ZKIR are served from the Vite public
+directory so the browser can load them:
 
 ```
-# Project Structure
+public/credshield/keys/verifyCreditworthiness.prover
+public/credshield/keys/verifyCreditworthiness.verifier
+public/credshield/zkir/verifyCreditworthiness.bzkir
+public/credshield/zkir/verifyCreditworthiness.zkir
+```
+
+`npm run compile` regenerates the artifacts under
+`contracts/managed/credshield/` and syncs them into `public/credshield/`.
+They are copied into the production bundle and served at
+`/credshield/keys/...` and `/credshield/zkir/...`.
+
+---
+
+## Project Structure
+
 ```
 mn-demo/
 ├── contracts/
-│   ├── counter.compact
-│   ├── hello-world.compact
-│   └── managed/
-│       └── counter/
-│           ├── compiler/
-│           ├── contract/
-│           ├── keys/
-│           └── zkir/
-│
+│   ├── credshield.compact          # CredShield Compact contract
+│   └── managed/credshield/         # Compiled artifacts (contract, keys, zkir)
+├── public/credshield/              # ZK config served to the browser
 ├── src/
-│   ├── cli.ts
-│   ├── deploy.ts
-│   ├── check-balance.ts
-│   ├── network.ts
-│   ├── setup.ts
-│   ├── wallet-state.ts
-│   └── wallet.ts
-│
+│   ├── App.tsx                     # CredShield UI + main flow
+│   ├── globals.ts                  # Buffer/process polyfills (loaded first)
+│   ├── credshieldClient.ts         # Midnight.js circuit client
+│   ├── in-memory-private-state-provider.ts
+│   ├── hooks/useMidnight.ts        # 1AM wallet connect/disconnect
+│   ├── components/WalletConnect.tsx
+│   ├── components/CircuitCall.tsx
+│   ├── deploy.ts                   # Preview deployment script
+│   └── network.ts                  # Network configuration
 ├── tests/
-│   └── counter.test.ts
-│
-├── screenshots/
-│   └── Level 1 evidence
-│
-├── docker-compose.yml
-├── package.json
-├── package-lock.json
-├── tsconfig.json
-└── .gitignore
+│   └── credshield.test.ts          # Eligibility logic unit tests
+├── docker-compose.yml              # Proof server (and local devnet)
+└── vite.config.ts
 ```
-```
-# Level 1 Submission Checklist
-Before submission, verify:
 
-[ ] contracts/counter.compact exists
-[ ] contracts/managed/counter/ exists
-[ ] managed artifacts are tracked by Git
-[ ] npm run compile succeeds
-[ ] npm test succeeds
-[ ] npx tsc --noEmit succeeds
-[ ] Preview deployment address is present in README
-[ ] Preview deployment is the canonical deployment
-[ ] README does not contain wallet secrets
-[ ] .midnight-state.json is not committed
-[ ] .midnight-wallet-state/ is not committed
-[ ] screenshots/ contains submission evidence
-[ ] Git history contains at least 5 meaningful commits
-[ ] GitHub repository is pushed
-```
+---
+
+## Wallet Integration — 1AM Wallet
+
+CredShield uses the **1AM Wallet** via the standard Midnight DApp Connector API v4.
+
+### Connection flow:
+1. `useMidnight.ts` detects the 1AM Wallet at `window.midnight['1am']`
+2. Calls `wallet.connect('preview')` → triggers 1AM authorization popup
+3. `hintUsage([...])` pre-declares which methods will be used
+4. Retrieves the connected Midnight Preview address
+5. Stores `ConnectedAPI` for use in the circuit call
+
+### Transaction flow:
+1. User enters private financial values (password-masked inputs)
+2. `credshieldClient.ts` stores them in the in-memory private state provider
+3. `deployed.callTx.verifyCreditworthiness()` calls the real circuit
+4. The proof is generated using `getProvingProvider` from 1AM
+5. `balanceUnsealedTransaction()` is called on the 1AM ConnectedAPI → triggers 1AM approval popup
+6. `submitTransaction()` submits to Midnight Preview
+7. `getVerified()` polls the indexer until `verified = true`
+
+---
+
+## Level 2 Evidence — Screenshots to Capture
+
+For submission, capture the following screenshots:
+
+1. **1AM Wallet connection/authorization** — The 1AM popup requesting authorization for `localhost:5173`
+2. **Connected wallet + Midnight address** — The UI showing "1AM Wallet Connected" with the shortened Midnight Preview address
+3. **Private input screen** — The three password-masked input fields (credit score, DTI, bank balance)
+4. **Proof generation spinner** — The "Generating ZK proof…" spinner while the proof runs
+5. **1AM transaction approval** — The 1AM wallet approval/signing dialog for the `verifyCreditworthiness` transaction
+6. **Successful verification** — The "✓ Creditworthiness Verified" success card in the UI
+7. **Browser console** — Console showing:
+   - `STEP 1: Calling verifyCreditworthiness circuit...`
+   - `STEP 1.6: Waiting for 1AM Wallet approval...`
+   - `STEP 1.7: 1AM Wallet returned an approved and balanced transaction.`
+   - `STEP 2: Submitting transaction to Midnight Preview via 1AM...`
+   - `STEP 3: Reading public verified state from indexer...`
+   - `STEP 3 done: Verification confirmed on Midnight Preview.`
+8. **Privacy section** — The "What remains private?" grid showing PRIVATE / PUBLIC RESULT labels
+9. **Contract address** — The README or browser showing the deployed contract address
+10. **Production build** — Terminal output of `npm run build` completing successfully
+
+---
+
+## Manual Demo Steps
+
+1. Install the 1AM Wallet browser extension from https://1am.xyz
+2. Configure it for **Midnight Preview** and ensure you have tNIGHT and DUST
+3. Open http://localhost:5173 (or the Vercel deployment URL)
+4. Click **Connect 1AM Wallet**
+5. Authorize CredShield in the 1AM popup
+6. Observe the connected address in the UI
+7. Enter test values: Credit Score = `750`, DTI = `30`, Bank Balance = `5000`
+8. Click **Prove My Creditworthiness**
+9. When 1AM shows its approval dialog, approve the transaction
+10. Wait for the indexer to confirm (up to ~30 seconds)
+11. Observe **✓ Creditworthiness Verified** in the UI
+
+Note: Steps 8–11 require the 1AM Wallet to have DUST tokens for proof fees.
+
+---
+
+## Available Scripts
+
+| Command | Description |
+|---|---|
+| `npm run compile` | Compile the Compact contract, sync ZK files |
+| `npm run build` | Type-check and produce the production bundle |
+| `npm run deploy` | Deploy the compiled contract |
+| `npm run network` | Display the active network |
+| `npm test` | Run automated tests |
+| `npx tsc --noEmit` | Validate TypeScript |
+| `npm run proof-server:start` | Start the local proof server (Docker) |
+| `npm run proof-server:stop` | Stop the local proof server |
+| `npm run dev` | Start the Vite dev server |
+
+---
+
+## Vercel Deployment
+
+The project is ready to deploy to Vercel:
+
+- **Build command:** `npm run build`
+- **Output directory:** `dist`
+- **ZK files** are included in the production bundle at `/credshield/keys/` and `/credshield/zkir/`
+
+> **Note:** The production deployment requires visitors to have the 1AM Wallet
+> extension installed. Vercel's build does not include a proof server — proving
+> is delegated to 1AM Wallet's `getProvingProvider` (in-browser WASM or Proof Station).
+
+---
+
+## Security Notes
+
+- Wallet recovery phrases, seeds, and `.midnight-state.json` are never
+  committed to Git.
+- The exact credit score, DTI, and bank balance are private witness inputs
+  only; they are **never logged to the console**, never displayed publicly,
+  and never written to the ledger.
+- The deployed contract is on Midnight Preview. The Preprod network is not
+  used because it is significantly slower.
+- Private financial values are held in an in-memory provider that exists
+  only for the lifetime of a single verification call.
