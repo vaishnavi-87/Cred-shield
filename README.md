@@ -23,13 +23,11 @@ eligibility result is ever written to the ledger.
 | **Contract** | `4e9bdd092a84c65e48b7b4a87f4c0a7b96ac5dcdc0b773a170ff3d11acc6db9f` |
 
 ---
-```
-## Links (Demo, Video, Form)
+## Links (Demo, Video)
 
 - **Live Demo:** https://midnight-level1-counter.vercel.app/
 - **Demo Video:** https://drive.google.com/file/d/1FBllfPrnzSl4g7CxEwOc9uM3iCuwbQn7/view?usp=sharin
 ---
-```
 
 
 ## Contract Address
