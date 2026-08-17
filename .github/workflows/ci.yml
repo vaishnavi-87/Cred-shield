@@ -24,7 +24,7 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-            - name: Install Compact CLI
+      - name: Install Compact CLI
         env:
           COMPACT_VERSION: 0.24.0
         run: |
@@ -32,7 +32,7 @@ jobs:
           echo "$HOME/.compact/bin" >> "$GITHUB_PATH"
           export PATH="$HOME/.compact/bin:$PATH"
           compact update "$COMPACT_VERSION"
-          compact compile --version 
+          compact compile --version
 
       - name: Compile Compact contract
         run: npm run compile
