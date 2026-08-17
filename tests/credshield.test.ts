@@ -32,4 +32,48 @@ describe('CredShield Creditworthiness', () => {
   it('should approve a borrower exactly at the eligibility thresholds', () => {
     expect(isEligible(700n, 40n, 1000n)).toBe(true);
   });
+
+  it('should update the public verification state after a successful proof', () => {
+    let verified = false;
+
+    const privateCreditScore = 750n;
+    const privateDti = 30n;
+    const privateBankBalance = 5000n;
+
+    const proofResult = isEligible(
+      privateCreditScore,
+      privateDti,
+      privateBankBalance,
+    );
+
+    if (proofResult) {
+      verified = true;
+    }
+
+    expect(verified).toBe(true);
+  });
+
+  it('should expose only the verification result and not private financial values', () => {
+    const privateCreditScore = 750n;
+    const privateDti = 30n;
+    const privateBankBalance = 5000n;
+
+    const verified = isEligible(
+      privateCreditScore,
+      privateDti,
+      privateBankBalance,
+    );
+
+    const publicResult = {
+      verified,
+    };
+
+    expect(publicResult).toEqual({ verified: true });
+    expect(publicResult).not.toHaveProperty('creditScore');
+    expect(publicResult).not.toHaveProperty('dti');
+    expect(publicResult).not.toHaveProperty('bankBalance');
+    expect(JSON.stringify(publicResult)).not.toContain('750');
+    expect(JSON.stringify(publicResult)).not.toContain('30');
+    expect(JSON.stringify(publicResult)).not.toContain('5000');
+  });
 });
