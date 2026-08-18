@@ -1,16 +1,13 @@
 # CredShield
 
-**Level 2 · Midnight Builder Challenge · Rise In**
+![CredShield CI](actions/workflows/ci.yml/badge.svg)
 
-CredShield is a privacy-preserving credit-scoring engine. It lets a borrower
-prove on-chain that they satisfy lending eligibility conditions without
-revealing their credit score, debt-to-income ratio (DTI), bank balance,
-financial records, or identity. The proof is generated locally from the
+**Level 3 · Midnight Builder Challenge · Rise In**
+
+CredShield is a privacy-preserving credit-scoring engine. It lets a borrower prove on-chain that they satisfy lending eligibility conditions without revealing their credit score, debt-to-income ratio (DTI), bank balance, financial records, or identity. The proof is generated locally from the
 borrower's private inputs, approved and submitted by the 1AM Wallet, and
 verified against a contract deployed on Midnight Preview — only the public
 eligibility result is ever written to the ledger.
-
----
 
 ## Project
 
@@ -22,13 +19,11 @@ eligibility result is ever written to the ledger.
 | **Circuit** | `verifyCreditworthiness` |
 | **Contract** | `4e9bdd092a84c65e48b7b4a87f4c0a7b96ac5dcdc0b773a170ff3d11acc6db9f` |
 
----
+
 ## Links (Demo, Video)
 
 - **Live Demo:** https://midnight-level1-counter.vercel.app/
 - **Demo Video:** https://drive.google.com/file/d/1FBllfPrnzSl4g7CxEwOc9uM3iCuwbQn7/view?usp=sharin
----
-
 
 ## Contract Address
 
@@ -39,11 +34,9 @@ eligibility result is ever written to the ledger.
 The contract is deployed on the **Midnight Preview** test network. It is
 reachable through the public Preview indexer:
 
-```
 https://indexer.preview.midnight.network
-```
 
----
+
 
 ## What This Does
 
@@ -60,7 +53,6 @@ If all conditions hold, the circuit discloses only the boolean
 `verified = true` to the public ledger. The raw financial values are never
 written to the ledger and never leave the browser as public data.
 
----
 
 ## Privacy Model
 
@@ -86,7 +78,6 @@ values after verification.
 > conditions, but cannot see the exact credit score, DTI, bank balance,
 > financial records, or identity."
 
----
 
 ## Tech Stack
 
@@ -98,7 +89,6 @@ values after verification.
 - TypeScript
 - Vite
 
----
 
 ## Prerequisites
 
@@ -108,11 +98,10 @@ values after verification.
   - Configure the wallet for **Midnight Preview**
 - Midnight Preview access (the deployed contract is already live)
 
----
 
 ## Run Locally
 
-```bash
+bash
 # 1. Install dependencies
 npm install
 
@@ -129,7 +118,7 @@ npm run build
 
 # 5. Start the frontend
 npm run dev
-```
+
 
 Then open http://localhost:5173, click **Connect 1AM Wallet**,
 authorize the connection in the 1AM extension (Midnight Preview),
@@ -139,30 +128,25 @@ The 1AM Wallet will prompt for transaction approval. After approval,
 the UI shows **✓ Creditworthiness Verified** once the public contract
 state reports `verified = true`.
 
----
-
 ## ZK Configuration Files
 
 The circuit proving/verifying keys and ZKIR are served from the Vite public
 directory so the browser can load them:
 
-```
+
 public/credshield/keys/verifyCreditworthiness.prover
 public/credshield/keys/verifyCreditworthiness.verifier
 public/credshield/zkir/verifyCreditworthiness.bzkir
 public/credshield/zkir/verifyCreditworthiness.zkir
-```
 
 `npm run compile` regenerates the artifacts under
 `contracts/managed/credshield/` and syncs them into `public/credshield/`.
 They are copied into the production bundle and served at
 `/credshield/keys/...` and `/credshield/zkir/...`.
 
----
-
 ## Project Structure
 
-```
+
 mn-demo/
 ├── contracts/
 │   ├── credshield.compact          # CredShield Compact contract
@@ -182,9 +166,7 @@ mn-demo/
 │   └── credshield.test.ts          # Eligibility logic unit tests
 ├── docker-compose.yml              # Proof server (and local devnet)
 └── vite.config.ts
-```
 
----
 
 ## Wallet Integration — 1AM Wallet
 
@@ -206,7 +188,6 @@ CredShield uses the **1AM Wallet** via the standard Midnight DApp Connector API 
 6. `submitTransaction()` submits to Midnight Preview
 7. `getVerified()` polls the indexer until `verified = true`
 
----
 
 ## Level 2 Evidence — Screenshots to Capture
 
@@ -229,7 +210,6 @@ For submission, capture the following screenshots:
 9. **Contract address** — The README or browser showing the deployed contract address
 10. **Production build** — Terminal output of `npm run build` completing successfully
 
----
 
 ## Manual Demo Steps
 
@@ -247,7 +227,7 @@ For submission, capture the following screenshots:
 
 Note: Steps 8–11 require the 1AM Wallet to have DUST tokens for proof fees.
 
----
+
 
 ## Available Scripts
 
@@ -263,7 +243,6 @@ Note: Steps 8–11 require the 1AM Wallet to have DUST tokens for proof fees.
 | `npm run proof-server:stop` | Stop the local proof server |
 | `npm run dev` | Start the Vite dev server |
 
----
 
 ## Vercel Deployment
 
@@ -277,7 +256,7 @@ The project is ready to deploy to Vercel:
 > extension installed. Vercel's build does not include a proof server — proving
 > is delegated to 1AM Wallet's `getProvingProvider` (in-browser WASM or Proof Station).
 
----
+
 
 ## Security Notes
 
