@@ -26,7 +26,7 @@ jobs:
 
       - name: Install Compact CLI
         env:
-          COMPACT_VERSION: 0.24.0
+          COMPACT_VERSION: 0.31.1
         run: |
           curl --proto '=https' --tlsv1.2 -LsSf https://github.com/midnightntwrk/compact/releases/latest/download/compact-installer.sh | sh
           echo "$HOME/.compact/bin" >> "$GITHUB_PATH"
