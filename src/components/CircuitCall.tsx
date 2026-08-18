@@ -22,24 +22,45 @@ function CircuitCall({
   const [creditScore, setCreditScore] = useState("");
   const [dti, setDti] = useState("");
   const [bankBalance, setBankBalance] = useState("");
-
+const [validationError, setValidationError] = useState<string | null>(null);
   const handleSubmit = () => {
-    if (
-      !creditScore ||
-      !dti ||
-      !bankBalance
-    ) {
-      return;
-    }
+  setValidationError(null);
 
-    // Pass values as BigInt — they will be consumed as private witnesses
-    // inside the ZK circuit and will NOT appear in any public output.
-    onProve(
-      BigInt(creditScore),
-      BigInt(dti),
-      BigInt(bankBalance),
-    );
-  };
+  if (!creditScore || !dti || !bankBalance) {
+    setValidationError("Please enter all three financial values.");
+    return;
+  }
+
+  if (
+    !/^\d+$/.test(creditScore) ||
+    !/^\d+$/.test(dti) ||
+    !/^\d+$/.test(bankBalance)
+  ) {
+    setValidationError("Please enter valid non-negative numbers.");
+    return;
+  }
+
+  const score = BigInt(creditScore);
+  const dtiValue = BigInt(dti);
+  const balance = BigInt(bankBalance);
+
+  if (score < 0n || score > 850n) {
+    setValidationError("Credit score must be between 0 and 850.");
+    return;
+  }
+
+  if (dtiValue < 0n || dtiValue > 100n) {
+    setValidationError("DTI must be between 0% and 100%.");
+    return;
+  }
+
+  if (balance < 0n) {
+    setValidationError("Bank balance cannot be negative.");
+    return;
+  }
+
+  onProve(score, dtiValue, balance);
+};
 
   if (!connected) {
     return (
@@ -73,47 +94,55 @@ function CircuitCall({
         <div className="private-inputs">
           <label>
             Credit Score
-            <input
-              id="input-credit-score"
-              type="password"
-              inputMode="numeric"
-              value={creditScore}
-              onChange={(e) =>
-                setCreditScore(e.target.value)
-              }
-              placeholder="Private"
-              autoComplete="off"
-            />
+         <input
+  id="input-credit-score"
+  type="password"
+  inputMode="numeric"
+  min="0"
+  max="850"
+  value={creditScore}
+  onChange={(e) => {
+    setCreditScore(e.target.value);
+    setValidationError(null);
+  }}
+  placeholder="Private"
+  autoComplete="off"
+/>
           </label>
 
           <label>
             Debt-to-Income Ratio (%)
-            <input
-              id="input-dti"
-              type="password"
-              inputMode="numeric"
-              value={dti}
-              onChange={(e) =>
-                setDti(e.target.value)
-              }
-              placeholder="Private"
-              autoComplete="off"
-            />
+        <input
+  id="input-dti"
+  type="password"
+  inputMode="numeric"
+  min="0"
+  max="100"
+  value={dti}
+  onChange={(e) => {
+    setDti(e.target.value);
+    setValidationError(null);
+  }}
+  placeholder="Private"
+  autoComplete="off"
+/>
           </label>
 
           <label>
             Bank Balance
-            <input
-              id="input-bank-balance"
-              type="password"
-              inputMode="numeric"
-              value={bankBalance}
-              onChange={(e) =>
-                setBankBalance(e.target.value)
-              }
-              placeholder="Private"
-              autoComplete="off"
-            />
+          <input
+  id="input-bank-balance"
+  type="password"
+  inputMode="numeric"
+  min="0"
+  value={bankBalance}
+  onChange={(e) => {
+    setBankBalance(e.target.value);
+    setValidationError(null);
+  }}
+  placeholder="Private"
+  autoComplete="off"
+/>
           </label>
         </div>
       )}
@@ -190,11 +219,11 @@ function CircuitCall({
         </div>
       )}
 
-      {error && (
-        <div className="error-message">
-          {error}
-        </div>
-      )}
+      {(validationError || error) && (
+  <div className="error-message">
+    {validationError || error}
+  </div>
+)}
     </section>
   );
 }
