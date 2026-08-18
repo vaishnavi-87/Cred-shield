@@ -228,6 +228,23 @@ For submission, capture the following screenshots:
 Note: Steps 8–11 require the 1AM Wallet to have DUST tokens for proof fees.
 
 
+## Testing & CI/CD
+
+### Tests
+
+CredShield includes automated tests covering:
+
+- Creditworthiness eligibility logic
+- Rejection of invalid credit conditions
+- Eligibility threshold behavior
+- Public verification state transition
+- Privacy behavior showing that private financial values are not included in the public result
+
+Run the complete test suite with:
+
+```bash
+npm test
+
 
 ## Available Scripts
 
@@ -269,3 +286,19 @@ The project is ready to deploy to Vercel:
   used because it is significantly slower.
 - Private financial values are held in an in-memory provider that exists
   only for the lifetime of a single verification call.
+
+## Level 3 Submission Status
+
+- [x] Functional privacy-preserving dApp
+- [x] 13 automated tests passing
+- [x] GitHub Actions CI/CD
+- [x] Passing CI run
+- [x] CI status badge
+- [x] Product proposal
+- [x] Privacy model documented
+- [x] Test evidence screenshot
+- [x] CI evidence screenshot
+- [x] Privacy test evidence screenshot
+- [x] Midnight Preview contract deployed
+- [ ] 1-minute demo video
+- [ ] Final 10 meaningful commits
