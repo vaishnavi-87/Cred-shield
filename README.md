@@ -146,7 +146,7 @@ They are copied into the production bundle and served at
 
 ## Project Structure
 
-
+```
 mn-demo/
 ├── contracts/
 │   ├── credshield.compact          # CredShield Compact contract
@@ -167,7 +167,7 @@ mn-demo/
 ├── docker-compose.yml              # Proof server (and local devnet)
 └── vite.config.ts
 
-
+```
 ## Wallet Integration — 1AM Wallet
 
 CredShield uses the **1AM Wallet** via the standard Midnight DApp Connector API v4.
