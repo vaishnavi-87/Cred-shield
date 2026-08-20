@@ -12,32 +12,6 @@ type CircuitCallProps = {
   ) => void;
 };
 
-const STORAGE_KEY = "credshield-private-inputs";
-
-type SavedInputs = {
-  creditScore: string;
-  dti: string;
-  bankBalance: string;
-};
-
-function loadSavedInputs(): SavedInputs {
-  try {
-    const saved = sessionStorage.getItem(STORAGE_KEY);
-
-    if (saved) {
-      return JSON.parse(saved);
-    }
-  } catch {
-    // Ignore storage errors.
-  }
-
-  return {
-    creditScore: "",
-    dti: "",
-    bankBalance: "",
-  };
-}
-
 function CircuitCall({
   connected,
   isProving,
@@ -45,45 +19,13 @@ function CircuitCall({
   error,
   onProve,
 }: CircuitCallProps) {
-  const saved = loadSavedInputs();
-
-  const [creditScore, setCreditScore] = useState(
-    saved.creditScore,
-  );
-
-  const [dti, setDti] = useState(saved.dti);
-
-  const [bankBalance, setBankBalance] = useState(
-    saved.bankBalance,
-  );
-
+  const [creditScore, setCreditScore] = useState("");
+  const [dti, setDti] = useState("");
+  const [bankBalance, setBankBalance] = useState("");
   const [validationError, setValidationError] =
     useState<string | null>(null);
 
-  const saveInputs = (
-    score: string,
-    dtiValue: string,
-    balance: string,
-  ) => {
-    try {
-      sessionStorage.setItem(
-        STORAGE_KEY,
-        JSON.stringify({
-          creditScore: score,
-          dti: dtiValue,
-          bankBalance: balance,
-        }),
-      );
-    } catch {
-      // Ignore storage errors.
-    }
-  };
-
   const handleSubmit = () => {
-    if (isProving || verified) {
-      return;
-    }
-
     setValidationError(null);
 
     if (!creditScore || !dti || !bankBalance) {
@@ -94,23 +36,17 @@ function CircuitCall({
     }
 
     if (!/^\d+$/.test(creditScore)) {
-      setValidationError(
-        "Credit Score must be a whole number.",
-      );
+      setValidationError("Credit Score must be a whole number.");
       return;
     }
 
     if (!/^\d+$/.test(dti)) {
-      setValidationError(
-        "DTI must be a whole number.",
-      );
+      setValidationError("DTI must be a whole number.");
       return;
     }
 
     if (!/^\d+$/.test(bankBalance)) {
-      setValidationError(
-        "Bank Balance must be a whole number.",
-      );
+      setValidationError("Bank Balance must be a whole number.");
       return;
     }
 
@@ -139,19 +75,9 @@ function CircuitCall({
       return;
     }
 
-    // Save once so React remounts do not erase the values.
-    saveInputs(
-      creditScore,
-      dti,
-      bankBalance,
-    );
-
-    // Start the real verification flow exactly once.
-    onProve(
-      score,
-      dtiValue,
-      balance,
-    );
+    // Send the user's actual private values to the
+    // existing Midnight verification flow.
+    onProve(score, dtiValue, balance);
   };
 
   if (!connected) {
@@ -178,15 +104,14 @@ function CircuitCall({
       <p>
         Enter your financial information privately.
         These values remain in your browser and are
-        used only as private witness inputs for the
-        ZK circuit.
+        used as private witness inputs for the ZK circuit.
       </p>
 
       {!verified && (
         <div className="private-inputs">
+
           <label>
             Credit Score
-
             <input
               id="input-credit-score"
               type="number"
@@ -195,27 +120,16 @@ function CircuitCall({
               max="850"
               value={creditScore}
               onChange={(e) => {
-                const value = e.target.value;
-
-                setCreditScore(value);
-
-                saveInputs(
-                  value,
-                  dti,
-                  bankBalance,
-                );
-
+                setCreditScore(e.target.value);
                 setValidationError(null);
               }}
               placeholder="0 – 850"
               autoComplete="off"
-              disabled={isProving}
             />
           </label>
 
           <label>
             Debt-to-Income Ratio
-
             <input
               id="input-dti"
               type="number"
@@ -224,27 +138,16 @@ function CircuitCall({
               max="100"
               value={dti}
               onChange={(e) => {
-                const value = e.target.value;
-
-                setDti(value);
-
-                saveInputs(
-                  creditScore,
-                  value,
-                  bankBalance,
-                );
-
+                setDti(e.target.value);
                 setValidationError(null);
               }}
               placeholder="0 – 100%"
               autoComplete="off"
-              disabled={isProving}
             />
           </label>
 
           <label>
             Bank Balance
-
             <input
               id="input-bank-balance"
               type="number"
@@ -252,23 +155,14 @@ function CircuitCall({
               min="0"
               value={bankBalance}
               onChange={(e) => {
-                const value = e.target.value;
-
-                setBankBalance(value);
-
-                saveInputs(
-                  creditScore,
-                  dti,
-                  value,
-                );
-
+                setBankBalance(e.target.value);
                 setValidationError(null);
               }}
               placeholder="Enter your balance"
               autoComplete="off"
-              disabled={isProving}
             />
           </label>
+
         </div>
       )}
 
@@ -296,6 +190,12 @@ function CircuitCall({
         </button>
       )}
 
+      {validationError && (
+        <div className="error-message">
+          ⚠ {validationError}
+        </div>
+      )}
+
       {isProving && (
         <div className="proof-status">
           <div className="spinner" />
@@ -310,8 +210,8 @@ function CircuitCall({
             </span>
 
             <span>
-              Approve the transaction in 1AM Wallet
-              when prompted.
+              Approve the transaction in 1AM Wallet when
+              prompted.
             </span>
           </div>
         </div>
@@ -335,14 +235,13 @@ function CircuitCall({
             </strong>
 
             <span>
-              Eligibility was proven without
-              revealing your financial information.
+              Eligibility was proven without revealing
+              your financial information.
             </span>
 
             <span className="privacy-note">
               Only the eligibility result is publicly
-              recorded. Your financial values remain
-              private.
+              recorded. Your financial values remain private.
             </span>
           </div>
         </div>

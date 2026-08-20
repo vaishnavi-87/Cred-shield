@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type {
   ConnectedAPI,
   InitialAPI,
@@ -13,225 +13,287 @@ type WalletState = {
 };
 
 const NETWORK_ID = "preview";
-const WALLET_INJECTION_TIMEOUT_MS = 3000;
+const WALLET_INJECTION_TIMEOUT_MS = 5000;
 const WALLET_INJECTION_POLL_MS = 100;
 
-/**
- * Wait for two animation frames so the browser actually paints the latest
- * React state before the next async step runs. Without this, every status
- * update in the connection flow collapses into a single paint and the UI
- * appears frozen unless Chrome DevTools happens to be open.
+const SESSION_KEY = "credshield_1am_connected";
+
+/*
+ * Keep the live ConnectedAPI outside React state.
+ *
+ * This prevents a React remount during ZK proving from destroying
+ * the wallet connection object.
  */
-function waitForPaint(): Promise<void> {
-  return new Promise((resolve) => {
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        resolve();
-      });
-    });
-  });
+let savedConnectedApi: ConnectedAPI | null = null;
+let savedAddress: string | null = null;
+
+function getWallet(): InitialAPI | undefined {
+  return window.midnight?.["1am"] as InitialAPI | undefined;
 }
 
 function errorText(error: unknown, fallback: string): string {
-  if (typeof error === "object" && error !== null && "reason" in error) {
+  if (
+    typeof error === "object" &&
+    error !== null &&
+    "reason" in error
+  ) {
     return String((error as { reason: unknown }).reason);
   }
+
   if (error instanceof Error) {
     return error.message;
   }
+
   return fallback;
 }
 
+async function waitForWallet(): Promise<InitialAPI> {
+  let wallet = getWallet();
+
+  if (wallet) {
+    return wallet;
+  }
+
+  const deadline =
+    Date.now() + WALLET_INJECTION_TIMEOUT_MS;
+
+  while (!wallet && Date.now() < deadline) {
+    await new Promise((resolve) =>
+      setTimeout(resolve, WALLET_INJECTION_POLL_MS),
+    );
+
+    wallet = getWallet();
+  }
+
+  if (!wallet) {
+    throw new Error(
+      "1AM Wallet was not detected. Please install, unlock, and reload the page.",
+    );
+  }
+
+  return wallet;
+}
+
+async function connectToWallet(): Promise<{
+  api: ConnectedAPI;
+  address: string;
+}> {
+  const wallet = await waitForWallet();
+
+  const api = await wallet.connect(NETWORK_ID);
+
+  const connectionStatus =
+    await api.getConnectionStatus();
+
+  if (connectionStatus.status === "disconnected") {
+    throw new Error(
+      "1AM Wallet is disconnected. Please unlock the wallet.",
+    );
+  }
+
+  if (connectionStatus.networkId !== NETWORK_ID) {
+    throw new Error(
+      `Wrong network: ${connectionStatus.networkId}. Please switch to Midnight Preview.`,
+    );
+  }
+
+  const addressResult =
+    await api.getUnshieldedAddress();
+
+  const address =
+    addressResult.unshieldedAddress;
+
+  if (!address) {
+    throw new Error(
+      "Could not obtain the Midnight Preview wallet address.",
+    );
+  }
+
+  return {
+    api,
+    address,
+  };
+}
+
 export function useMidnight() {
-  const [state, setState] = useState<WalletState>({
-    address: null,
-    connectedApi: null,
-    isConnecting: false,
-    error: null,
-    status: "",
-  });
+  const restoringRef = useRef(false);
 
-  const updateStatus = useCallback((status: string) => {
-    setState((previous) => ({ ...previous, status }));
-  }, []);
+  const [state, setState] =
+    useState<WalletState>({
+      address: savedAddress,
+      connectedApi: savedConnectedApi,
+      isConnecting: false,
+      error: null,
+      status: savedAddress
+        ? "✓ 1AM Wallet connected"
+        : "",
+    });
 
-  const connectWallet = useCallback(async () => {
+  /*
+   * Automatically restore the already-authorized wallet
+   * if React remounts during proving.
+   */
+  useEffect(() => {
+    if (restoringRef.current) {
+      return;
+    }
+
+    if (
+      savedConnectedApi &&
+      savedAddress
+    ) {
+      setState({
+        address: savedAddress,
+        connectedApi: savedConnectedApi,
+        isConnecting: false,
+        error: null,
+        status: "✓ 1AM Wallet connected",
+      });
+
+      return;
+    }
+
+    const wasConnected =
+      sessionStorage.getItem(
+        SESSION_KEY,
+      ) === "true";
+
+    if (!wasConnected) {
+      return;
+    }
+
+    restoringRef.current = true;
+
     setState((previous) => ({
       ...previous,
       isConnecting: true,
       error: null,
+      status:
+        "⟳ Restoring 1AM Wallet connection...",
     }));
 
-    try {
-      // ── 1. Detect the 1AM Wallet ───────────────────────────────────────────
-      //
-      // Detection is deliberately SYNCHRONOUS. wallet.connect() below must be
-      // invoked from within the original user gesture (the button click), or
-      // the browser will silently block the real 1AM authorization popup
-      // (transient user activation is lost across await/setTimeout).
-      //
-      // The 1AM Wallet injects its InitialAPI at window.midnight['1am'].
+    connectToWallet()
+      .then(({ api, address }) => {
+        savedConnectedApi = api;
+        savedAddress = address;
 
-      updateStatus("⟳ Detecting 1AM Wallet...");
-
-      let wallet1AM = window.midnight?.["1am"] as InitialAPI | undefined;
-
-      // If the extension has not injected itself yet (it normally injects a
-      // moment after the page loads), wait for it. There is no authorization
-      // popup to lose in this branch because there is no wallet to connect to
-      // yet — connect() is only reached once an API handle exists.
-      if (!wallet1AM) {
-        updateStatus("⟳ Waiting for 1AM Wallet to appear...");
-
-        const deadline =
-          Date.now() + WALLET_INJECTION_TIMEOUT_MS;
-
-        while (!wallet1AM && Date.now() < deadline) {
-          await new Promise((resolve) =>
-            setTimeout(resolve, WALLET_INJECTION_POLL_MS),
-          );
-          wallet1AM =
-            window.midnight?.["1am"] as InitialAPI | undefined;
-        }
-      }
-
-      if (!wallet1AM) {
-        throw new Error(
-          "1AM Wallet was not detected. " +
-            "Please install and unlock the 1AM Wallet extension, " +
-            "reload the page, then try again.",
-        );
-      }
-
-      console.log("1AM Wallet detected:", {
-        name: wallet1AM.name,
-        apiVersion: wallet1AM.apiVersion,
-      });
-
-      updateStatus("✓ 1AM Wallet detected.");
-
-      // ── 2. Request 1AM Wallet authorization (the REAL popup) ───────────────
-      //
-      // connect('preview') is invoked synchronously in the click's call stack,
-      // so the real 1AM authorization UI is allowed to appear.
-      //
-      // NOTE: If this origin has ALREADY been authorized in 1AM before,
-      // connect() resolves silently and no popup is shown. That is the
-      // documented DApp Connector behavior. There is NO official API to force
-      // the authorization popup for an already-authorized origin — see
-      // disconnectWallet() and the README notes for how to reset it.
-
-      updateStatus("⟳ Waiting for 1AM Wallet authorization...");
-
-      let connectedApi: ConnectedAPI;
-
-      try {
-        connectedApi = await wallet1AM.connect(NETWORK_ID);
-      } catch (connectError: unknown) {
-        const reason = errorText(
-          connectError,
-          "Authorization was rejected.",
-        );
-
-        throw new Error(
-          `1AM Wallet authorization was rejected: ${reason}`,
-        );
-      }
-
-      updateStatus("✓ 1AM Wallet authorization approved.");
-      await waitForPaint();
-
-      // ── 3. Confirm Midnight Preview network ────────────────────────────────
-
-      updateStatus("⟳ Checking Midnight Preview network...");
-      await waitForPaint();
-
-      try {
-        const connectionStatus =
-          await connectedApi.getConnectionStatus();
-
-        if (connectionStatus.status === "disconnected") {
-          throw new Error(
-            "1AM Wallet is not connected. " +
-              "Please unlock 1AM Wallet and try again.",
-          );
-        }
-
-        if (connectionStatus.networkId !== NETWORK_ID) {
-          throw new Error(
-            `1AM Wallet is connected to "${connectionStatus.networkId}" but ` +
-              "CredShield requires Midnight Preview. " +
-              "Please switch networks in your 1AM Wallet and try again.",
-          );
-        }
-      } catch (statusError: unknown) {
-        if (
-          statusError instanceof Error &&
-          (statusError.message.includes("not connected") ||
-            statusError.message.includes("Midnight Preview"))
-        ) {
-          throw statusError;
-        }
-
-        // getConnectionStatus not supported or failed — the network was
-        // already hinted through connect('preview'), so continue anyway.
+        setState({
+          address,
+          connectedApi: api,
+          isConnecting: false,
+          error: null,
+          status:
+            "✓ 1AM Wallet connection restored",
+        });
+      })
+      .catch((error: unknown) => {
         console.warn(
-          "Could not verify network from 1AM (continuing):",
-          statusError,
+          "Wallet restoration failed:",
+          error,
         );
-      }
 
-      updateStatus("✓ Midnight Preview network confirmed.");
-      await waitForPaint();
+        sessionStorage.removeItem(
+          SESSION_KEY,
+        );
 
-      // ── 4. Fetch the connected Midnight Preview address ────────────────────
-
-      const addressResult =
-        await connectedApi.getUnshieldedAddress();
-
-      const address = addressResult.unshieldedAddress;
-
-      console.log("Connected Midnight Preview address:", address);
-
-      // ── 5. Connected ───────────────────────────────────────────────────────
-
-      setState({
-        address,
-        connectedApi,
-        isConnecting: false,
-        error: null,
-        status: "✓ 1AM Wallet connected successfully.",
+        setState((previous) => ({
+          ...previous,
+          isConnecting: false,
+          error: null,
+          status: "",
+        }));
+      })
+      .finally(() => {
+        restoringRef.current = false;
       });
-    } catch (error: unknown) {
-      console.error("1AM Wallet connection failed:", error);
+  }, []);
+
+  const connectWallet =
+    useCallback(async () => {
+      if (
+        savedConnectedApi &&
+        savedAddress
+      ) {
+        setState({
+          address: savedAddress,
+          connectedApi:
+            savedConnectedApi,
+          isConnecting: false,
+          error: null,
+          status:
+            "✓ 1AM Wallet already connected",
+        });
+
+        return;
+      }
 
       setState((previous) => ({
         ...previous,
-        isConnecting: false,
-        error: errorText(error, "Failed to connect to 1AM Wallet."),
+        isConnecting: true,
+        error: null,
+        status:
+          "⟳ Connecting to 1AM Wallet...",
       }));
-    }
-  }, [updateStatus]);
 
-  // NOTE: There is no documented 1AM / DApp Connector API to revoke an
-  // existing site authorization. disconnectWallet() only clears CredShield's
-  // local connection state. To revoke localhost:5173's authorization inside
-  // 1AM itself, use the wallet's connection/site-permission management (or
-  // reset the wallet), or simply run the dev server on a different origin so
-  // the next connect() shows the real authorization popup again.
-  const disconnectWallet = useCallback(() => {
-    setState({
-      address: null,
-      connectedApi: null,
-      isConnecting: false,
-      error: null,
-      status: "",
-    });
+      try {
+        const { api, address } =
+          await connectToWallet();
 
-    console.log(
-      "1AM Wallet disconnected from CredShield (dApp-side only).",
-    );
-  }, []);
+        savedConnectedApi = api;
+        savedAddress = address;
+
+        /*
+         * Remember that this browser session has
+         * already authorized CredShield.
+         */
+        sessionStorage.setItem(
+          SESSION_KEY,
+          "true",
+        );
+
+        setState({
+          address,
+          connectedApi: api,
+          isConnecting: false,
+          error: null,
+          status:
+            "✓ 1AM Wallet connected successfully",
+        });
+      } catch (error: unknown) {
+        console.error(
+          "1AM Wallet connection failed:",
+          error,
+        );
+
+        setState((previous) => ({
+          ...previous,
+          isConnecting: false,
+          error: errorText(
+            error,
+            "Failed to connect to 1AM Wallet.",
+          ),
+          status: "Wallet connection failed.",
+        }));
+      }
+    }, []);
+
+  const disconnectWallet =
+    useCallback(() => {
+      savedConnectedApi = null;
+      savedAddress = null;
+
+      sessionStorage.removeItem(
+        SESSION_KEY,
+      );
+
+      setState({
+        address: null,
+        connectedApi: null,
+        isConnecting: false,
+        error: null,
+        status: "",
+      });
+    }, []);
 
   return {
     ...state,

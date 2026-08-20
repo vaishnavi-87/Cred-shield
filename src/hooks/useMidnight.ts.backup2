@@ -1,0 +1,243 @@
+import { useCallback, useEffect, useState } from "react";
+import type {
+  ConnectedAPI,
+  InitialAPI,
+} from "@midnight-ntwrk/dapp-connector-api";
+
+
+type WalletState = {
+  address: string | null;
+  connectedApi: ConnectedAPI | null;
+  isConnecting: boolean;
+  error: string | null;
+  status: string;
+};
+
+const NETWORK_ID = "preview";
+const WALLET_INJECTION_TIMEOUT_MS = 3000;
+const WALLET_INJECTION_POLL_MS = 100;
+
+/**
+ * Wait for two animation frames so the browser actually paints the latest
+ * React state before the next async step runs. Without this, every status
+ * update in the connection flow collapses into a single paint and the UI
+ * appears frozen unless Chrome DevTools happens to be open.
+ */
+function waitForPaint(): Promise<void> {
+  return new Promise((resolve) => {
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        resolve();
+      });
+    });
+  });
+}
+
+function errorText(error: unknown, fallback: string): string {
+  if (typeof error === "object" && error !== null && "reason" in error) {
+    return String((error as { reason: unknown }).reason);
+  }
+  if (error instanceof Error) {
+    return error.message;
+  }
+  return fallback;
+}
+
+export function useMidnight() {
+  const [state, setState] = useState<WalletState>({
+    address: null,
+    connectedApi: null,
+    isConnecting: false,
+    error: null,
+    status: "",
+  });
+
+  const updateStatus = useCallback((status: string) => {
+    setState((previous) => ({ ...previous, status }));
+  }, []);
+
+  const connectWallet = useCallback(async () => {
+    setState((previous) => ({
+      ...previous,
+      isConnecting: true,
+      error: null,
+    }));
+
+    try {
+      // ── 1. Detect the 1AM Wallet ───────────────────────────────────────────
+      //
+      // Detection is deliberately SYNCHRONOUS. wallet.connect() below must be
+      // invoked from within the original user gesture (the button click), or
+      // the browser will silently block the real 1AM authorization popup
+      // (transient user activation is lost across await/setTimeout).
+      //
+      // The 1AM Wallet injects its InitialAPI at window.midnight['1am'].
+
+      updateStatus("⟳ Detecting 1AM Wallet...");
+
+      let wallet1AM = window.midnight?.["1am"] as InitialAPI | undefined;
+
+      // If the extension has not injected itself yet (it normally injects a
+      // moment after the page loads), wait for it. There is no authorization
+      // popup to lose in this branch because there is no wallet to connect to
+      // yet — connect() is only reached once an API handle exists.
+      if (!wallet1AM) {
+        updateStatus("⟳ Waiting for 1AM Wallet to appear...");
+
+        const deadline =
+          Date.now() + WALLET_INJECTION_TIMEOUT_MS;
+
+        while (!wallet1AM && Date.now() < deadline) {
+          await new Promise((resolve) =>
+            setTimeout(resolve, WALLET_INJECTION_POLL_MS),
+          );
+          wallet1AM =
+            window.midnight?.["1am"] as InitialAPI | undefined;
+        }
+      }
+
+      if (!wallet1AM) {
+        throw new Error(
+          "1AM Wallet was not detected. " +
+            "Please install and unlock the 1AM Wallet extension, " +
+            "reload the page, then try again.",
+        );
+      }
+
+      console.log("1AM Wallet detected:", {
+        name: wallet1AM.name,
+        apiVersion: wallet1AM.apiVersion,
+      });
+
+      updateStatus("✓ 1AM Wallet detected.");
+
+      // ── 2. Request 1AM Wallet authorization (the REAL popup) ───────────────
+      //
+      // connect('preview') is invoked synchronously in the click's call stack,
+      // so the real 1AM authorization UI is allowed to appear.
+      //
+      // NOTE: If this origin has ALREADY been authorized in 1AM before,
+      // connect() resolves silently and no popup is shown. That is the
+      // documented DApp Connector behavior. There is NO official API to force
+      // the authorization popup for an already-authorized origin — see
+      // disconnectWallet() and the README notes for how to reset it.
+
+      updateStatus("⟳ Waiting for 1AM Wallet authorization...");
+
+      let connectedApi: ConnectedAPI;
+
+      try {
+        connectedApi = await wallet1AM.connect(NETWORK_ID);
+      } catch (connectError: unknown) {
+        const reason = errorText(
+          connectError,
+          "Authorization was rejected.",
+        );
+
+        throw new Error(
+          `1AM Wallet authorization was rejected: ${reason}`,
+        );
+      }
+
+      updateStatus("✓ 1AM Wallet authorization approved.");
+      await waitForPaint();
+
+      // ── 3. Confirm Midnight Preview network ────────────────────────────────
+
+      updateStatus("⟳ Checking Midnight Preview network...");
+      await waitForPaint();
+
+      try {
+        const connectionStatus =
+          await connectedApi.getConnectionStatus();
+
+        if (connectionStatus.status === "disconnected") {
+          throw new Error(
+            "1AM Wallet is not connected. " +
+              "Please unlock 1AM Wallet and try again.",
+          );
+        }
+
+        if (connectionStatus.networkId !== NETWORK_ID) {
+          throw new Error(
+            `1AM Wallet is connected to "${connectionStatus.networkId}" but ` +
+              "CredShield requires Midnight Preview. " +
+              "Please switch networks in your 1AM Wallet and try again.",
+          );
+        }
+      } catch (statusError: unknown) {
+        if (
+          statusError instanceof Error &&
+          (statusError.message.includes("not connected") ||
+            statusError.message.includes("Midnight Preview"))
+        ) {
+          throw statusError;
+        }
+
+        // getConnectionStatus not supported or failed — the network was
+        // already hinted through connect('preview'), so continue anyway.
+        console.warn(
+          "Could not verify network from 1AM (continuing):",
+          statusError,
+        );
+      }
+
+      updateStatus("✓ Midnight Preview network confirmed.");
+      await waitForPaint();
+
+      // ── 4. Fetch the connected Midnight Preview address ────────────────────
+
+      const addressResult =
+        await connectedApi.getUnshieldedAddress();
+
+      const address = addressResult.unshieldedAddress;
+
+      console.log("Connected Midnight Preview address:", address);
+
+      // ── 5. Connected ───────────────────────────────────────────────────────
+
+      setState({
+        address,
+        connectedApi,
+        isConnecting: false,
+        error: null,
+        status: "✓ 1AM Wallet connected successfully.",
+      });
+    } catch (error: unknown) {
+      console.error("1AM Wallet connection failed:", error);
+
+      setState((previous) => ({
+        ...previous,
+        isConnecting: false,
+        error: errorText(error, "Failed to connect to 1AM Wallet."),
+      }));
+    }
+  }, [updateStatus]);
+
+  // NOTE: There is no documented 1AM / DApp Connector API to revoke an
+  // existing site authorization. disconnectWallet() only clears CredShield's
+  // local connection state. To revoke localhost:5173's authorization inside
+  // 1AM itself, use the wallet's connection/site-permission management (or
+  // reset the wallet), or simply run the dev server on a different origin so
+  // the next connect() shows the real authorization popup again.
+  const disconnectWallet = useCallback(() => {
+    setState({
+      address: null,
+      connectedApi: null,
+      isConnecting: false,
+      error: null,
+      status: "",
+    });
+
+    console.log(
+      "1AM Wallet disconnected from CredShield (dApp-side only).",
+    );
+  }, []);
+
+  return {
+    ...state,
+    connectWallet,
+    disconnectWallet,
+  };
+
+}

@@ -23,7 +23,7 @@ eligibility result is ever written to the ledger.
 ## Links (Demo, Video)
 
 - **Live Demo:** https://midnight-level1-counter.vercel.app/
-- **Demo Video:** https://drive.google.com/file/d/1FBllfPrnzSl4g7CxEwOc9uM3iCuwbQn7/view?usp=sharin
+- **Demo Video:** https://drive.google.com/file/d/1VfiSE8tjYONT_v9OloXZGoKp1uOKEZCK/view?usp=sharing
 
 ## Contract Address
 
@@ -55,6 +55,60 @@ written to the ledger and never leave the browser as public data.
 
 
 ## Privacy Model
+
+CredShield uses zero-knowledge verification so that an observer can
+verify the eligibility result without learning the user's underlying
+financial information.
+
+### What an observer can learn
+
+An observer can see:
+
+- That a verification transaction was submitted.
+- That the verification was successfully completed.
+- The public eligibility result.
+- Public blockchain transaction information such as transaction
+  metadata and network information.
+
+### What an observer cannot learn
+
+An observer cannot learn:
+
+- The user's credit score.
+- The user's debt-to-income ratio (DTI).
+- The user's bank balance.
+- The private financial values used as inputs to the proof.
+- The underlying private witness data used by the circuit.
+
+### Privacy Model
+
+| Information | Observer can see? |
+|---|---|
+| Verification transaction | Yes |
+| Eligibility result | Yes |
+| Credit Score | No |
+| Debt-to-Income Ratio | No |
+| Bank Balance | No |
+| Private witness values | No |
+
+The key privacy property is that the system reveals **whether the
+eligibility conditions are satisfied, not the financial values used to
+satisfy them**.
+
+### Privacy Flow
+
+User's Private Data
+        ↓
+Credit Score ─────┐
+DTI ──────────────┼──→ Zero-Knowledge Proof
+Bank Balance ─────┘
+                         ↓
+                  Eligibility Result
+                         ↓
+                 Publicly Verifiable
+
+Private financial values remain hidden.
+Only the verification result is exposed.
 
 ### Private (never disclosed):
 - exact credit score

@@ -157,40 +157,42 @@ function App() {
 
       const maxAttempts = 10;
 
-let verifiedOnChain = false;
+      let verifiedOnChain = false;
 
-for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-  setStatus(
-    "✓ Transaction submitted. Waiting for public verification...",
-  );
+      for (
+        let attempt = 1;
+        attempt <= maxAttempts;
+        attempt++
+      ) {
+        setStatus(
+          `Waiting for public verification... (${attempt}/${maxAttempts})`,
+        );
 
-  try {
-    verifiedOnChain =
-      await client.getVerified();
+        try {
+          verifiedOnChain =
+            await client.getVerified();
 
-    console.log(
-      `Public verification attempt ${attempt}:`,
-      verifiedOnChain,
-    );
-  } catch (readError) {
-    console.warn(
-      "Could not read public verified state:",
-      readError,
-    );
-  }
+          console.log(
+            `Public verification attempt ${attempt}:`,
+            verifiedOnChain,
+          );
+        } catch (readError) {
+          console.warn(
+            "Could not read public verified state:",
+            readError,
+          );
+        }
 
-  if (verifiedOnChain) {
-    break;
-  }
+        if (verifiedOnChain) {
+          break;
+        }
 
-  if (attempt < maxAttempts) {
-    await new Promise((resolve) =>
-      setTimeout(resolve, 3000),
-    );
-  }
-}
-
-        
+        if (attempt < maxAttempts) {
+          await new Promise((resolve) =>
+            setTimeout(resolve, 3000),
+          );
+        }
+      }
 
       // ------------------------------------------------------------
       // STEP 6 — Final result
