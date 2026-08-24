@@ -42,9 +42,6 @@ function App() {
   ) => {
     console.log("=================================");
     console.log("PROVE BUTTON CLICKED");
-    console.log("creditScore:", creditScore.toString());
-    console.log("dti:", dti.toString());
-    console.log("bankBalance:", bankBalance.toString());
     console.log("address at prove:", address);
     console.log("connectedApi at prove:", connectedApi);
     console.log("=================================");
