@@ -3,29 +3,41 @@ pragma language_version >= 0.23;
 import CompactStandardLibrary;
 
 /*
- * CRED SHIELD — LEVEL 2
+ * CRED SHIELD — LEVEL 4 MVP
  *
  * Privacy-preserving creditworthiness verification.
  *
- * PRIVATE:
+ * PRIVACY MODEL:
+ *
+ * PRIVATE INPUTS:
  * - creditScore()
  * - dti()
  * - bankBalance()
  *
  * These values are supplied as private witnesses.
- * They are used inside the ZK circuit but are NOT stored
- * as public ledger state.
+ * They are used inside the zero-knowledge circuit and
+ * are NOT stored as public ledger state.
  *
- * PUBLIC:
- * - verified: whether the borrower satisfied the
- *   predefined eligibility conditions.
+ * PUBLIC STATE:
+ * - verified: whether the borrower satisfies all
+ *   predefined creditworthiness conditions.
  *
- * DISCLOSE:
- * - Only the eligibility result is disclosed.
+ * PROOF:
+ * The circuit checks the private financial inputs against
+ * the eligibility thresholds without revealing their
+ * exact values.
  *
- * The exact credit score, DTI and bank balance remain private.
+ * DISCLOSURE:
+ * Only the final eligibility result is deliberately
+ * disclosed to the public ledger.
+ *
+ * Therefore, an observer can verify that the borrower
+ * satisfies the required conditions without learning:
+ * - the exact credit score
+ * - the exact debt-to-income ratio
+ * - the exact bank balance
+ * - the private witness values
  */
-
 export ledger verified: Boolean;
 
 witness creditScore(): Uint<32>;
