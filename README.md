@@ -6,7 +6,7 @@
 
 CredShield is a privacy-preserving credit-scoring engine. It lets a borrower prove on-chain that they satisfy lending eligibility conditions without revealing their credit score, debt-to-income ratio (DTI), bank balance, financial records, or identity. The proof is generated locally from the
 borrower's private inputs, approved and submitted by the 1AM Wallet, and
-verified against a contract deployed on Midnight Preview — only the public
+verified against a contract deployed on Midnight Preprod — only the public
 eligibility result is ever written to the ledger.
 
 ## Project
@@ -15,9 +15,9 @@ eligibility result is ever written to the ledger.
 |---|---|
 | **Project** | CredShield — Private Creditworthiness Verification |
 | **Wallet** | 1AM Wallet |
-| **Network** | Midnight Preview |
+| **Network** | Midnight Preprod |
 | **Circuit** | `verifyCreditworthiness` |
-| **Contract** | `4e9bdd092a84c65e48b7b4a87f4c0a7b96ac5dcdc0b773a170ff3d11acc6db9f` |
+| **Contract** | `c5018b936e1223442e1bc25631155045bb3ab05decb961f00fbbc4a4fa996953` |
 
 
 ## Links (Demo, Video)
@@ -29,10 +29,10 @@ eligibility result is ever written to the ledger.
 
 | Network | Address |
 |---|---|
-| Midnight Preview | `4e9bdd092a84c65e48b7b4a87f4c0a7b96ac5dcdc0b773a170ff3d11acc6db9f` |
+| Midnight Preprod | `c5018b936e1223442e1bc25631155045bb3ab05decb961f00fbbc4a4fa996953` |
 
-The contract is deployed on the **Midnight Preview** test network. It is
-reachable through the public Preview indexer:
+The contract is deployed on the **Midnight Preprod** test network. It is
+reachable through the public Preprod indexer:
 
 https://indexer.preview.midnight.network
 
@@ -135,7 +135,7 @@ values after verification.
 
 ## Tech Stack
 
-- Midnight Network (Preview)
+- Midnight Network (Preprod)
 - Compact (Midnight's smart-contract language)
 - Midnight.js (`midnight-js-*` packages, v4.1.x)
 - 1AM Wallet (Midnight DApp Connector API v4)
@@ -149,8 +149,8 @@ values after verification.
 - Node.js >= 22
 - **1AM Wallet** browser extension installed and unlocked
   - Install from: https://1am.xyz
-  - Configure the wallet for **Midnight Preview**
-- Midnight Preview access (the deployed contract is already live)
+  - Configure the wallet for **Midnight Preprod**
+- Midnight Preprod access (the deployed contract is already live)
 
 
 ## Run Locally
@@ -175,7 +175,7 @@ npm run dev
 
 
 Then open http://localhost:5173, click **Connect 1AM Wallet**,
-authorize the connection in the 1AM extension (Midnight Preview),
+authorize the connection in the 1AM extension (Midnight Preprod),
 enter private test values, and press **Prove My Creditworthiness**.
 
 The 1AM Wallet will prompt for transaction approval. After approval,
@@ -214,7 +214,7 @@ mn-demo/
 │   ├── hooks/useMidnight.ts        # 1AM wallet connect/disconnect
 │   ├── components/WalletConnect.tsx
 │   ├── components/CircuitCall.tsx
-│   ├── deploy.ts                   # Preview deployment script
+│   ├── deploy.ts                   # Preprod deployment script
 │   └── network.ts                  # Network configuration
 ├── tests/
 │   └── credshield.test.ts          # Eligibility logic unit tests
@@ -230,7 +230,7 @@ CredShield uses the **1AM Wallet** via the standard Midnight DApp Connector API 
 1. `useMidnight.ts` detects the 1AM Wallet at `window.midnight['1am']`
 2. Calls `wallet.connect('preview')` → triggers 1AM authorization popup
 3. `hintUsage([...])` pre-declares which methods will be used
-4. Retrieves the connected Midnight Preview address
+4. Retrieves the connected Midnight Preprod address
 5. Stores `ConnectedAPI` for use in the circuit call
 
 ### Transaction flow:
@@ -239,7 +239,7 @@ CredShield uses the **1AM Wallet** via the standard Midnight DApp Connector API 
 3. `deployed.callTx.verifyCreditworthiness()` calls the real circuit
 4. The proof is generated using `getProvingProvider` from 1AM
 5. `balanceUnsealedTransaction()` is called on the 1AM ConnectedAPI → triggers 1AM approval popup
-6. `submitTransaction()` submits to Midnight Preview
+6. `submitTransaction()` submits to Midnight Preprod
 7. `getVerified()` polls the indexer until `verified = true`
 
 
@@ -248,7 +248,7 @@ CredShield uses the **1AM Wallet** via the standard Midnight DApp Connector API 
 For submission, capture the following screenshots:
 
 1. **1AM Wallet connection/authorization** — The 1AM popup requesting authorization for `localhost:5173`
-2. **Connected wallet + Midnight address** — The UI showing "1AM Wallet Connected" with the shortened Midnight Preview address
+2. **Connected wallet + Midnight address** — The UI showing "1AM Wallet Connected" with the shortened Midnight Preprod address
 3. **Private input screen** — The three password-masked input fields (credit score, DTI, bank balance)
 4. **Proof generation spinner** — The "Generating ZK proof…" spinner while the proof runs
 5. **1AM transaction approval** — The 1AM wallet approval/signing dialog for the `verifyCreditworthiness` transaction
@@ -257,9 +257,9 @@ For submission, capture the following screenshots:
    - `STEP 1: Calling verifyCreditworthiness circuit...`
    - `STEP 1.6: Waiting for 1AM Wallet approval...`
    - `STEP 1.7: 1AM Wallet returned an approved and balanced transaction.`
-   - `STEP 2: Submitting transaction to Midnight Preview via 1AM...`
+   - `STEP 2: Submitting transaction to Midnight Preprod via 1AM...`
    - `STEP 3: Reading public verified state from indexer...`
-   - `STEP 3 done: Verification confirmed on Midnight Preview.`
+   - `STEP 3 done: Verification confirmed on Midnight Preprod.`
 8. **Privacy section** — The "What remains private?" grid showing PRIVATE / PUBLIC RESULT labels
 9. **Contract address** — The README or browser showing the deployed contract address
 10. **Production build** — Terminal output of `npm run build` completing successfully
@@ -268,7 +268,7 @@ For submission, capture the following screenshots:
 ## Manual Demo Steps
 
 1. Install the 1AM Wallet browser extension from https://1am.xyz
-2. Configure it for **Midnight Preview** and ensure you have tNIGHT and DUST
+2. Configure it for **Midnight Preprod** and ensure you have tNIGHT and DUST
 3. Open http://localhost:5173 (or the Vercel deployment URL)
 4. Click **Connect 1AM Wallet**
 5. Authorize CredShield in the 1AM popup
@@ -336,7 +336,7 @@ The project is ready to deploy to Vercel:
 - The exact credit score, DTI, and bank balance are private witness inputs
   only; they are **never logged to the console**, never displayed publicly,
   and never written to the ledger.
-- The deployed contract is on Midnight Preview. The Preprod network is not
+- The deployed contract is on Midnight Preprod. The Preprod network is not
   used because it is significantly slower.
 - Private financial values are held in an in-memory provider that exists
   only for the lifetime of a single verification call.
@@ -353,6 +353,6 @@ The project is ready to deploy to Vercel:
 - [x] Test evidence screenshot
 - [x] CI evidence screenshot
 - [x] Privacy test evidence screenshot
-- [x] Midnight Preview contract deployed
+- [x] Midnight Preprod contract deployed
 - [ ] 1-minute demo video
 - [ ] Final 10 meaningful commits
