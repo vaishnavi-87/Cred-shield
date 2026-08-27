@@ -51,7 +51,8 @@ import {
 // ─────────────────────────────────────────────────────────────────────────────
 
 const CONTRACT_ADDRESS =
-  "4e9bdd092a84c65e48b7b4a87f4c0a7b96ac5dcdc0b773a170ff3d11acc6db9f" as ContractAddress;
+  "c5018b936e1223442e1bc25631155045bb3ab05decb961f00fbbc4a4fa996953" as ContractAddress;
+
 
 const PRIVATE_STATE_ID = "credshieldPrivateState";
 
@@ -251,7 +252,7 @@ export async function createCredShieldClient(
       throw new Error(
         "1AM Wallet does not provide a proving service and no " +
         "proverServerUri was found in the wallet configuration. " +
-        "Please ensure 1AM Wallet is connected to Midnight Preview.",
+        "Please ensure 1AM Wallet is connected to Midnight Preprod.",
       );
     }
 
@@ -422,11 +423,11 @@ export async function createCredShieldClient(
     ) {
 
       await updateStatus(
-        "Submitting transaction to Midnight Preview...",
+        "Submitting transaction to Midnight Preprod...",
       );
 
       console.log(
-        "STEP 2: Submitting transaction to Midnight Preview via 1AM...",
+        "STEP 2: Submitting transaction to Midnight Preprod via 1AM...",
       );
 
 
@@ -464,7 +465,7 @@ export async function createCredShieldClient(
       );
 
       console.log(
-        "STEP 2 done: Transaction submitted to Midnight Preview.",
+        "STEP 2 done: Transaction submitted to Midnight Preprod.",
       );
 
 
@@ -521,7 +522,7 @@ export async function createCredShieldClient(
   );
 
   console.log(
-    "Connecting to deployed CredShield contract on Midnight Preview...",
+    "Connecting to deployed CredShield contract on Midnight Preprod...",
   );
 
 
@@ -744,7 +745,7 @@ const retryDelayMs = 3000;
               );
 
               console.log(
-                "STEP 3 done: Verification confirmed on Midnight Preview.",
+                "STEP 3 done: Verification confirmed on Midnight Preprod.",
               );
 
               return true;
