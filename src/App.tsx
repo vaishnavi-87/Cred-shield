@@ -272,7 +272,7 @@ for (let attempt = 1; attempt <= maxAttempts; attempt++) {
           </div>
 
           <span className="network-badge">
-            Midnight Preview
+            Midnight Preprod
           </span>
 
           <h1>
