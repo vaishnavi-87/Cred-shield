@@ -1,3 +1,6 @@
+import {
+  dappConnectorProofProvider,
+} from "@midnight-ntwrk/midnight-js-dapp-connector-proof-provider";
 import type { ConnectedAPI } from "@midnight-ntwrk/dapp-connector-api";
 
 import { setNetworkId } from "@midnight-ntwrk/midnight-js-network-id";
@@ -16,16 +19,12 @@ import {
 
 import {
   Binding,
+ CostModel,
   FinalizedTransaction,
   Proof,
   SignatureEnabled,
   Transaction,
 } from "@midnight-ntwrk/midnight-js-protocol/ledger";
-
-import {
-  httpClientProofProvider,
-} from "@midnight-ntwrk/midnight-js-http-client-proof-provider";
-
 import {
   indexerPublicDataProvider,
 } from "@midnight-ntwrk/midnight-js-indexer-public-data-provider";
@@ -206,28 +205,37 @@ export async function createCredShieldClient(
   // Docker proof-server is exposed on port 6300.
   //
 
-  const localProofServerUri =
-    "http://127.0.0.1:6300";
+    // ───────────────────────────────────────────────────────────────────────────
+  // PROOF PROVIDER
+  // ───────────────────────────────────────────────────────────────────────────
+  //
+  // Use the 1AM Wallet's proving capability.
+  // This is required for the deployed Vercel application because
+  // localhost:6300 is only available on the developer's machine.
+  //
 
   await updateStatus(
-    "Connecting to local Midnight proof server...",
+    "Connecting to 1AM Wallet proof provider...",
   );
 
   console.log(
-    "Using LOCAL Midnight proof server:",
-    localProofServerUri,
+    "Using 1AM Wallet proving provider.",
   );
 
   const proofProvider =
-    httpClientProofProvider(
-      localProofServerUri,
+    await dappConnectorProofProvider(
+      connectedAPI,
       zkConfigProvider,
+      CostModel.initialCostModel(),
     );
 
   console.log(
-    "✓ Local Midnight HTTP proof provider created.",
+    "✓ 1AM Wallet proof provider created.",
   );
 
+  await updateStatus(
+    "✓ 1AM Wallet proof provider connected.",
+  );
   await updateStatus(
     "✓ Local Midnight proof server connected.",
   );
