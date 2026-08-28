@@ -76,7 +76,7 @@ export class Contract {
         if (!(typeof(contextOrig_0) === 'object' && contextOrig_0.currentQueryContext != undefined)) {
           __compactRuntime.typeError('verifyCreditworthiness',
                                      'argument 1 (as invoked from Typescript)',
-                                     'credshield.compact line 35 char 1',
+                                     'credshield.compact line 47 char 1',
                                      'CircuitContext',
                                      contextOrig_0)
         }
@@ -153,7 +153,7 @@ export class Contract {
     if (!(typeof(result_0) === 'bigint' && result_0 >= 0n && result_0 <= 4294967295n)) {
       __compactRuntime.typeError('creditScore',
                                  'return value',
-                                 'credshield.compact line 31 char 1',
+                                 'credshield.compact line 43 char 1',
                                  'Uint<0..4294967296>',
                                  result_0)
     }
@@ -170,7 +170,7 @@ export class Contract {
     if (!(typeof(result_0) === 'bigint' && result_0 >= 0n && result_0 <= 4294967295n)) {
       __compactRuntime.typeError('dti',
                                  'return value',
-                                 'credshield.compact line 32 char 1',
+                                 'credshield.compact line 44 char 1',
                                  'Uint<0..4294967296>',
                                  result_0)
     }
@@ -187,7 +187,7 @@ export class Contract {
     if (!(typeof(result_0) === 'bigint' && result_0 >= 0n && result_0 <= 18446744073709551615n)) {
       __compactRuntime.typeError('bankBalance',
                                  'return value',
-                                 'credshield.compact line 33 char 1',
+                                 'credshield.compact line 45 char 1',
                                  'Uint<0..18446744073709551616>',
                                  result_0)
     }

@@ -2,7 +2,7 @@
 
 ![CredShield CI](actions/workflows/ci.yml/badge.svg)
 
-**Level 3 · Midnight Builder Challenge · Rise In**
+**Level 4 · Midnight Builder Challenge · Rise In**
 
 CredShield is a privacy-preserving credit-scoring engine. It lets a borrower prove on-chain that they satisfy lending eligibility conditions without revealing their credit score, debt-to-income ratio (DTI), bank balance, financial records, or identity. The proof is generated locally from the
 borrower's private inputs, approved and submitted by the 1AM Wallet, and
@@ -22,7 +22,7 @@ eligibility result is ever written to the ledger.
 
 ## Links (Demo, Video)
 
-- **Live Demo:** https://midnight-level1-counter.vercel.app/
+- **Live Demo:** https://cred-shield.vercel.app
 - **Demo Video:** https://drive.google.com/file/d/1VfiSE8tjYONT_v9OloXZGoKp1uOKEZCK/view?usp=sharing
 
 ## Contract Address
@@ -182,6 +182,10 @@ The 1AM Wallet will prompt for transaction approval. After approval,
 the UI shows **✓ Creditworthiness Verified** once the public contract
 state reports `verified = true`.
 
+## Usage Guide
+
+See [docs/USAGE.md](docs/USAGE.md) for the complete CredShield
+user flow, privacy behavior, verification steps, and troubleshooting guide.
 ## ZK Configuration Files
 
 The circuit proving/verifying keys and ZKIR are served from the Vite public
@@ -284,6 +288,21 @@ Note: Steps 8–11 require the 1AM Wallet to have DUST tokens for proof fees.
 
 ## Testing & CI/CD
 
+## Live Demo & Product Profile
+
+- **Live Demo:** https://cred-shield.vercel.app
+- **Product X:** https://x.com/CredShielddlxo
+
+### CI/CD Status
+
+![CredShield CI](https://github.com/vaishnavi-87/Cred-shield/actions/workflows/ci.yml/badge.svg)
+
+The GitHub Actions CI pipeline runs automatically on the `level4-mvp` branch and verifies the Compact contract compilation and automated test suite.
+
+CI evidence:
+
+![Level 4 CI Success](screenshots/level4/03-ci-success.png)
+
 ### Tests
 
 CredShield includes automated tests covering:
@@ -341,18 +360,17 @@ The project is ready to deploy to Vercel:
 - Private financial values are held in an in-memory provider that exists
   only for the lifetime of a single verification call.
 
-## Level 3 Submission Status
+## Level 4 MVP Status
 
-- [x] Functional privacy-preserving dApp
+- [x] Level 4 MVP branch created
+- [x] CredShield privacy model documented
+- [x] Compact verification circuit compiled
+- [x] 1AM Wallet integration retained
+- [x] Frontend MVP layout integrated
+- [x] Usage guide added
+- [x] TypeScript production build passes
 - [x] 13 automated tests passing
-- [x] GitHub Actions CI/CD
-- [x] Passing CI run
-- [x] CI status badge
-- [x] Product proposal
-- [x] Privacy model documented
-- [x] Test evidence screenshot
-- [x] CI evidence screenshot
-- [x] Privacy test evidence screenshot
+- [x] GitHub Actions CI configured
 - [x] Midnight Preprod contract deployed
-- [ ] 1-minute demo video
-- [ ] Final 10 meaningful commits
+- [x] Final Level 4 demo evidence
+- [x] Final Level 4 demo video

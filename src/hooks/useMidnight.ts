@@ -12,7 +12,7 @@ type WalletState = {
   status: string;
 };
 
-const NETWORK_ID = "preview";
+const NETWORK_ID = "preprod";
 const WALLET_INJECTION_TIMEOUT_MS = 5000;
 const WALLET_INJECTION_POLL_MS = 100;
 
@@ -93,7 +93,7 @@ async function connectToWallet(): Promise<{
 
   if (connectionStatus.networkId !== NETWORK_ID) {
     throw new Error(
-      `Wrong network: ${connectionStatus.networkId}. Please switch to Midnight Preview.`,
+      `Wrong network: ${connectionStatus.networkId}. Please switch to Midnight Preprod.`,
     );
   }
 
@@ -105,7 +105,7 @@ async function connectToWallet(): Promise<{
 
   if (!address) {
     throw new Error(
-      "Could not obtain the Midnight Preview wallet address.",
+      "Could not obtain the Midnight Preprod wallet address.",
     );
   }
 

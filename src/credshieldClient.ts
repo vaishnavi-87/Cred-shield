@@ -1,3 +1,6 @@
+import {
+  dappConnectorProofProvider,
+} from "@midnight-ntwrk/midnight-js-dapp-connector-proof-provider";
 import type { ConnectedAPI } from "@midnight-ntwrk/dapp-connector-api";
 
 import { setNetworkId } from "@midnight-ntwrk/midnight-js-network-id";
@@ -16,16 +19,12 @@ import {
 
 import {
   Binding,
+ CostModel,
   FinalizedTransaction,
   Proof,
   SignatureEnabled,
   Transaction,
 } from "@midnight-ntwrk/midnight-js-protocol/ledger";
-
-import {
-  httpClientProofProvider,
-} from "@midnight-ntwrk/midnight-js-http-client-proof-provider";
-
 import {
   indexerPublicDataProvider,
 } from "@midnight-ntwrk/midnight-js-indexer-public-data-provider";
@@ -35,7 +34,6 @@ import {
 } from "@midnight-ntwrk/midnight-js-fetch-zk-config-provider";
 
 import {
-  createProofProvider,
   type UnboundTransaction,
 } from "@midnight-ntwrk/midnight-js-types";
 
@@ -51,7 +49,8 @@ import {
 // ─────────────────────────────────────────────────────────────────────────────
 
 const CONTRACT_ADDRESS =
-  "4e9bdd092a84c65e48b7b4a87f4c0a7b96ac5dcdc0b773a170ff3d11acc6db9f" as ContractAddress;
+  "c5018b936e1223442e1bc25631155045bb3ab05decb961f00fbbc4a4fa996953" as ContractAddress;
+
 
 const PRIVATE_STATE_ID = "credshieldPrivateState";
 
@@ -192,88 +191,62 @@ export async function createCredShieldClient(
     );
 
 
-  // ───────────────────────────────────────────────────────────────────────────
+    // ───────────────────────────────────────────────────────────────────────────
   // PROOF PROVIDER
   // ───────────────────────────────────────────────────────────────────────────
+  //
+  // IMPORTANT:
+  // Do NOT use the 1AM Wallet proving provider.
+  //
+  // The 1AM proving provider is returning a proof format that does not match
+  // the Midnight.js proof decoder used by this application.
+  //
+  // Use the local Midnight proof server instead.
+  // Docker proof-server is exposed on port 6300.
+  //
 
-  let proofProvider;
+    // ───────────────────────────────────────────────────────────────────────────
+  // PROOF PROVIDER
+  // ───────────────────────────────────────────────────────────────────────────
+  //
+  // Use the 1AM Wallet's proving capability.
+  // This is required for the deployed Vercel application because
+  // localhost:6300 is only available on the developer's machine.
+  //
 
-  try {
+  await updateStatus(
+    "Connecting to 1AM Wallet proof provider...",
+  );
 
-    await updateStatus(
-      "Getting proving provider from 1AM Wallet...",
+  console.log(
+    "Using 1AM Wallet proving provider.",
+  );
+
+  const proofProvider =
+    await dappConnectorProofProvider(
+      connectedAPI,
+      zkConfigProvider,
+      CostModel.initialCostModel(),
     );
 
-    console.log(
-      "Requesting proving provider from 1AM Wallet...",
-    );
+  console.log(
+    "✓ 1AM Wallet proof provider created.",
+  );
 
-    const provingProvider =
-      await connectedAPI.getProvingProvider(
-        zkConfigProvider,
-      );
-
-    console.log(
-      "1AM Wallet proving provider obtained.",
-    );
-
-    await updateStatus(
-      "✓ 1AM Wallet proving provider obtained.",
-    );
-
-    proofProvider =
-      createProofProvider(
-        provingProvider,
-      );
-
-    console.log(
-      "Midnight.js proof provider created.",
-    );
-
-    await updateStatus(
-      "✓ Midnight.js proving provider ready.",
-    );
-
-  } catch (provingProviderErr) {
-
-    console.warn(
-      "getProvingProvider not supported by this wallet version. " +
-      "Attempting fallback to proverServerUri.",
-      provingProviderErr,
-    );
-
-    if (!config.proverServerUri) {
-
-      await updateStatus(
-        "✗ Unable to get proving provider from 1AM Wallet.",
-      );
-
-      throw new Error(
-        "1AM Wallet does not provide a proving service and no " +
-        "proverServerUri was found in the wallet configuration. " +
-        "Please ensure 1AM Wallet is connected to Midnight Preview.",
-      );
-    }
-
-    console.log(
-      "Using HTTP proof server fallback.",
-    );
-
-    await updateStatus(
-      "✓ Using Midnight proof server fallback.",
-    );
-
-    proofProvider =
-      httpClientProofProvider(
-        config.proverServerUri!,
-        zkConfigProvider,
-      );
-  }
+  await updateStatus(
+    "✓ 1AM Wallet proof provider connected.",
+  );
+  await updateStatus(
+    "✓ Local Midnight proof server connected.",
+  );
 
 
   // ───────────────────────────────────────────────────────────────────────────
   // PRIVATE STATE PROVIDER
   // ───────────────────────────────────────────────────────────────────────────
+
+
+    
 
   const privateStateProvider =
     inMemoryPrivateStateProvider<
@@ -422,11 +395,11 @@ export async function createCredShieldClient(
     ) {
 
       await updateStatus(
-        "Submitting transaction to Midnight Preview...",
+        "Submitting transaction to Midnight Preprod...",
       );
 
       console.log(
-        "STEP 2: Submitting transaction to Midnight Preview via 1AM...",
+        "STEP 2: Submitting transaction to Midnight Preprod via 1AM...",
       );
 
 
@@ -464,7 +437,7 @@ export async function createCredShieldClient(
       );
 
       console.log(
-        "STEP 2 done: Transaction submitted to Midnight Preview.",
+        "STEP 2 done: Transaction submitted to Midnight Preprod.",
       );
 
 
@@ -521,7 +494,7 @@ export async function createCredShieldClient(
   );
 
   console.log(
-    "Connecting to deployed CredShield contract on Midnight Preview...",
+    "Connecting to deployed CredShield contract on Midnight Preprod...",
   );
 
 
@@ -744,7 +717,7 @@ const retryDelayMs = 3000;
               );
 
               console.log(
-                "STEP 3 done: Verification confirmed on Midnight Preview.",
+                "STEP 3 done: Verification confirmed on Midnight Preprod.",
               );
 
               return true;

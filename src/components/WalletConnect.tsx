@@ -37,7 +37,7 @@ function WalletConnect({
 
       {connected && address && (
         <div className="wallet-address">
-          <span>Midnight Preview</span>
+          <span>Midnight Preprod</span>
           <code title={address}>{shortAddress}</code>
         </div>
       )}

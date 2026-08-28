@@ -163,7 +163,7 @@ function CircuitCall({
 
         <p>
           Connect your 1AM Wallet to begin a private
-          creditworthiness proof on Midnight Preview.
+          creditworthiness proof on Midnight Preprod.
         </p>
       </section>
     );

@@ -1,4 +1,5 @@
 import "./App.css";
+import Layout from "./components/Layout";
 import WalletConnect from "./components/WalletConnect";
 import CircuitCall from "./components/CircuitCall";
 import { useMidnight } from "./hooks/useMidnight";
@@ -249,7 +250,8 @@ for (let attempt = 1; attempt <= maxAttempts; attempt++) {
   };
 
   return (
-    <main className="app">
+    <Layout>
+      <main className="app">
       <div className="background-glow" />
 
       <div className="container">
@@ -270,7 +272,7 @@ for (let attempt = 1; attempt <= maxAttempts; attempt++) {
           </div>
 
           <span className="network-badge">
-            Midnight Preview
+            Midnight Preprod
           </span>
 
           <h1>
@@ -557,6 +559,7 @@ for (let attempt = 1; attempt <= maxAttempts; attempt++) {
 
       </div>
     </main>
+   </Layout>
   );
 }
 
