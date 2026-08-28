@@ -288,6 +288,11 @@ Note: Steps 8–11 require the 1AM Wallet to have DUST tokens for proof fees.
 
 ## Testing & CI/CD
 
+## Live Demo & Product Profile
+
+- **Live Demo:** https://cred-shield.vercel.app
+- **Product X:** https://x.com/CredShielddlxo
+
 ### Tests
 
 CredShield includes automated tests covering:
