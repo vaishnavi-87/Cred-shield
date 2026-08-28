@@ -35,7 +35,6 @@ import {
 } from "@midnight-ntwrk/midnight-js-fetch-zk-config-provider";
 
 import {
-  createProofProvider,
   type UnboundTransaction,
 } from "@midnight-ntwrk/midnight-js-types";
 
@@ -193,88 +192,53 @@ export async function createCredShieldClient(
     );
 
 
-  // ───────────────────────────────────────────────────────────────────────────
+    // ───────────────────────────────────────────────────────────────────────────
   // PROOF PROVIDER
   // ───────────────────────────────────────────────────────────────────────────
+  //
+  // IMPORTANT:
+  // Do NOT use the 1AM Wallet proving provider.
+  //
+  // The 1AM proving provider is returning a proof format that does not match
+  // the Midnight.js proof decoder used by this application.
+  //
+  // Use the local Midnight proof server instead.
+  // Docker proof-server is exposed on port 6300.
+  //
 
-  let proofProvider;
+  const localProofServerUri =
+    "http://127.0.0.1:6300";
 
-  try {
+  await updateStatus(
+    "Connecting to local Midnight proof server...",
+  );
 
-    await updateStatus(
-      "Getting proving provider from 1AM Wallet...",
+  console.log(
+    "Using LOCAL Midnight proof server:",
+    localProofServerUri,
+  );
+
+  const proofProvider =
+    httpClientProofProvider(
+      localProofServerUri,
+      zkConfigProvider,
     );
 
-    console.log(
-      "Requesting proving provider from 1AM Wallet...",
-    );
+  console.log(
+    "✓ Local Midnight HTTP proof provider created.",
+  );
 
-    const provingProvider =
-      await connectedAPI.getProvingProvider(
-        zkConfigProvider,
-      );
-
-    console.log(
-      "1AM Wallet proving provider obtained.",
-    );
-
-    await updateStatus(
-      "✓ 1AM Wallet proving provider obtained.",
-    );
-
-    proofProvider =
-      createProofProvider(
-        provingProvider,
-      );
-
-    console.log(
-      "Midnight.js proof provider created.",
-    );
-
-    await updateStatus(
-      "✓ Midnight.js proving provider ready.",
-    );
-
-  } catch (provingProviderErr) {
-
-    console.warn(
-      "getProvingProvider not supported by this wallet version. " +
-      "Attempting fallback to proverServerUri.",
-      provingProviderErr,
-    );
-
-    if (!config.proverServerUri) {
-
-      await updateStatus(
-        "✗ Unable to get proving provider from 1AM Wallet.",
-      );
-
-      throw new Error(
-        "1AM Wallet does not provide a proving service and no " +
-        "proverServerUri was found in the wallet configuration. " +
-        "Please ensure 1AM Wallet is connected to Midnight Preprod.",
-      );
-    }
-
-    console.log(
-      "Using HTTP proof server fallback.",
-    );
-
-    await updateStatus(
-      "✓ Using Midnight proof server fallback.",
-    );
-
-    proofProvider =
-      httpClientProofProvider(
-        config.proverServerUri!,
-        zkConfigProvider,
-      );
-  }
+  await updateStatus(
+    "✓ Local Midnight proof server connected.",
+  );
 
 
   // ───────────────────────────────────────────────────────────────────────────
   // PRIVATE STATE PROVIDER
   // ───────────────────────────────────────────────────────────────────────────
+
+
+    
 
   const privateStateProvider =
     inMemoryPrivateStateProvider<
