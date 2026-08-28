@@ -293,6 +293,16 @@ Note: Steps 8–11 require the 1AM Wallet to have DUST tokens for proof fees.
 - **Live Demo:** https://cred-shield.vercel.app
 - **Product X:** https://x.com/CredShielddlxo
 
+### CI/CD Status
+
+![CredShield CI](https://github.com/vaishnavi-87/Cred-shield/actions/workflows/ci.yml/badge.svg)
+
+The GitHub Actions CI pipeline runs automatically on the `level4-mvp` branch and verifies the Compact contract compilation and automated test suite.
+
+CI evidence:
+
+![Level 4 CI Success](screenshots/level4/03-ci-success.png)
+
 ### Tests
 
 CredShield includes automated tests covering:
