@@ -5,7 +5,7 @@ on:
     branches:
       - main
       - master
-       - level4-mvp
+      - level4-mvp
   pull_request:
 
 jobs:
