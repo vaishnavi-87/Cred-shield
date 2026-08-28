@@ -22,7 +22,7 @@ eligibility result is ever written to the ledger.
 
 ## Links (Demo, Video)
 
-- **Live Demo:** Level 4 deployment pending
+- **Live Demo:** https://cred-shield.vercel.app
 - **Demo Video:** https://drive.google.com/file/d/1VfiSE8tjYONT_v9OloXZGoKp1uOKEZCK/view?usp=sharing
 
 ## Contract Address
@@ -372,6 +372,5 @@ The project is ready to deploy to Vercel:
 - [x] 13 automated tests passing
 - [x] GitHub Actions CI configured
 - [x] Midnight Preprod contract deployed
-- [ ] Final Level 4 demo evidence
-- [ ] Final Level 4 demo video
-- [ ] Push Level 4 branch to GitHub
+- [x] Final Level 4 demo evidence
+- [x] Final Level 4 demo video
