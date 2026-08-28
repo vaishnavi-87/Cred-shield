@@ -70,3 +70,4 @@ midnight-level-db/
 *.seed
 wallet-seed*
 secret*
+.vercel
