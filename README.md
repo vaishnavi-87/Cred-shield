@@ -113,14 +113,14 @@ Bank Balance ─────┘
 Private financial values remain hidden.
 Only the verification result is exposed.
 
-### Private (never disclosed):
+## Private (never disclosed):
 - exact credit score
 - exact DTI
 - exact bank balance
 - financial records
 - identity
 
-### Public (only result disclosed):
+## Public (only result disclosed):
 - the verification/eligibility result (`verified = true` or `false`)
 - the contract transaction and contract state required to verify the result
 
@@ -129,7 +129,7 @@ values are consumed as witnesses inside the proof and are never part of the
 disclosed public state. The frontend never displays or transmits the exact
 values after verification.
 
-### Privacy Claim
+## Privacy Claim
 
 > "An observer can verify that the borrower satisfied the eligibility
 > conditions, but cannot see the exact credit score, DTI, bank balance,
