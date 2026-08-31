@@ -95,6 +95,7 @@ The key privacy property is that the system reveals **whether the
 eligibility conditions are satisfied, not the financial values used to
 satisfy them**.
 
+```
 ### Privacy Flow
 
 User's Private Data
@@ -106,6 +107,8 @@ Bank Balance ─────┘
                   Eligibility Result
                          ↓
                  Publicly Verifiable
+
+```
 
 Private financial values remain hidden.
 Only the verification result is exposed.
