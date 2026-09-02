@@ -374,3 +374,51 @@ The project is ready to deploy to Vercel:
 - [x] Midnight Preprod contract deployed
 - [x] Final Level 4 demo evidence
 - [x] Final Level 4 demo video
+
+## Level 5 — User Validation
+
+CredShield Level 5 focuses on validating the product with real users and improving the experience based on their feedback.
+
+### User Validation Target
+
+- **Target:** 50 verifiable Midnight Preprod wallet addresses
+- **Current:** 0 / 50
+- **User Registry:** See [USERS.md](USERS.md)
+- **Feedback Log:** See [docs/FEEDBACK.md](docs/FEEDBACK.md)
+
+### Preprod Contract
+
+| Network | Contract Address |
+|---|---|
+| Midnight Preprod | `c5018b936e1223442e1bc25631155045bb3ab05decb961f00fbbc4a4fa996953` |
+
+### User Feedback Process
+
+Users are invited to test the live CredShield Preprod demo and provide feedback about:
+
+- Wallet connection
+- Private financial input experience
+- ZK proof generation
+- Verification flow
+- UI and usability
+- Errors or confusing steps
+- Overall product experience
+
+Feedback is recorded in `docs/FEEDBACK.md`.
+
+### Level 5 Improvements
+
+The top 2–3 recurring user issues or suggestions will be prioritized and implemented based on collected feedback. Each improvement will be documented with its reason and related commit.
+
+### Level 5 Progress
+
+- [x] Level 5 branch created
+- [x] User registry created
+- [x] Feedback log created
+- [x] Product UI polished
+- [x] Production build passing
+- [x] Automated tests passing
+- [ ] Collect 50 verifiable wallet addresses
+- [ ] Collect user feedback
+- [ ] Implement top 2–3 feedback improvements
+- [ ] Final Level 5 validation
