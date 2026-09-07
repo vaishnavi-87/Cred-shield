@@ -663,104 +663,55 @@ export async function createCredShieldClient(
     // ═══════════════════════════════════════════════════════════════════════════
 
     async getVerified() {
+      /*
+       * Perform ONE public-state read per call.
+       *
+       * App.tsx is responsible for retrying this method. Keeping the
+       * retry loop in only one place prevents nested polling, which
+       * previously caused verification to take much longer than expected.
+       */
 
-      const maxAttempts = 40;
-const retryDelayMs = 3000;
+      console.log("STEP 3: Reading public verified state...");
 
-
-     await updateStatus(
-  "✓ Transaction submitted. Waiting for public verification...",
-);
-
-      for (
-        let attempt = 1;
-        attempt <= maxAttempts;
-        attempt++
-      ) {
-
-        console.log(
-          `STEP 3: Reading public verified state ` +
-          `(attempt ${attempt}/${maxAttempts})...`,
-        );
-
-
-        try {
-
-          const state =
-            await providers
-              .publicDataProvider
-              .queryContractState(
-                CONTRACT_ADDRESS,
-              );
-
-
-          if (state) {
-
-            const verified =
-              CredShield
-                .ledger(
-                  state.data,
-                )
-                .verified;
-
-
-            console.log(
-              "Public on-chain verified state:",
-              verified,
+      try {
+        const state =
+          await providers
+            .publicDataProvider
+            .queryContractState(
+              CONTRACT_ADDRESS,
             );
 
+        if (state) {
+          const verified =
+            CredShield
+              .ledger(
+                state.data,
+              )
+              .verified;
 
-            if (verified) {
+          console.log(
+            "Public on-chain verified state:",
+            verified,
+          );
 
-              await updateStatus(
-                "✓ Creditworthiness Verified",
-              );
+          if (verified) {
+            await updateStatus(
+              "✓ Creditworthiness Verified",
+            );
 
-              console.log(
-                "STEP 3 done: Verification confirmed on Midnight Preprod.",
-              );
+            console.log(
+              "STEP 3 done: Verification confirmed on Midnight Preprod.",
+            );
 
-              return true;
-            }
+            return true;
           }
-
-        } catch (error) {
-
-          console.warn(
-            "Indexer read attempt failed:",
-            error,
-          );
         }
-
-
-        if (
-          attempt < maxAttempts
-        ) {
-
-          await updateStatus(
-            `Waiting for public verification... (${attempt}/${maxAttempts})`,
-          );
-
-
-          await new Promise(
-            (resolve) =>
-              setTimeout(
-                resolve,
-                retryDelayMs,
-              ),
-          );
-        }
+      } catch (error) {
+        console.warn(
+          "Indexer read failed:",
+          error,
+        );
       }
-
-
-      await updateStatus(
-        "Transaction submitted, but public verification is still pending.",
-      );
-
-      console.warn(
-        "Public verified state did not become true within retry budget.",
-      );
-
 
       return false;
     },

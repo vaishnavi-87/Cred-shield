@@ -257,17 +257,16 @@ function App() {
       );
 
       /*
-       * Keep this polling relatively fast.
+       * Fast public-state polling.
        *
-       * 10 attempts × 1.5 seconds = about 15 seconds.
+       * 10 attempts × 1 second = about 10 seconds.
        *
-       * This keeps the UX close to the previous Level 4
-       * behaviour while still giving the Midnight indexer
-       * time to update.
+       * The transaction is already submitted before this polling
+       * starts, so we only wait briefly for the Midnight public
+       * state/indexer to reflect the result.
        */
-
       const maxAttempts = 10;
-      const pollInterval = 1500;
+      const pollInterval = 1000;
 
       let verifiedOnChain = false;
 
@@ -311,21 +310,18 @@ function App() {
       // --------------------------------------------------------
 
       if (!verifiedOnChain) {
-        setStatus(
-          "Transaction submitted, but public verification is still pending.",
-        );
-
         /*
-         * IMPORTANT:
-         * Do NOT save this as Failed.
+         * The transaction was submitted successfully, but the
+         * public state/indexer has not updated within our short
+         * polling window.
          *
-         * The transaction may have succeeded even though
-         * the public state has not updated yet.
+         * Do NOT mark this as Failed and do NOT add a failed
+         * history record. The transaction may still succeed.
          */
-
-        throw new Error(
-          "Transaction completed, but the public verified state has not updated yet.",
+        setStatus(
+          "Transaction submitted. Public verification is still pending.",
         );
+        return;
       }
 
       // --------------------------------------------------------
