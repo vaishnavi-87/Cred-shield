@@ -259,14 +259,17 @@ function App() {
       /*
        * Fast public-state polling.
        *
-       * 10 attempts × 1 second = about 10 seconds.
-       *
+       * Check immediately, then every 250 ms for up to 5 seconds.
        * The transaction is already submitted before this polling
-       * starts, so we only wait briefly for the Midnight public
-       * state/indexer to reflect the result.
+       * starts, so the UI can show the result as soon as the
+       * Midnight public state/indexer reflects it.
+       *
+       * IMPORTANT:
+       * We still wait for the real on-chain public state. We do not
+       * mark the user as verified before the blockchain confirms it.
        */
-      const maxAttempts = 10;
-      const pollInterval = 1000;
+      const maxAttempts = 20;
+      const pollInterval = 250;
 
       let verifiedOnChain = false;
 
