@@ -382,9 +382,10 @@ CredShield Level 5 focuses on validating the product with real users and improvi
 ### User Validation Target
 
 - **Target:** 50 verifiable Midnight Preprod wallet addresses
-- **Current:** 0 / 50
+- **Current:** 50 / 50
 - **User Registry:** See [USERS.md](USERS.md)
 - **Feedback Log:** See [docs/FEEDBACK.md](docs/FEEDBACK.md)
+- **User Feedback Responses:** 52
 
 ### Preprod Contract
 
@@ -394,7 +395,7 @@ CredShield Level 5 focuses on validating the product with real users and improvi
 
 ### User Feedback Process
 
-Users are invited to test the live CredShield Preprod demo and provide feedback about:
+Users tested the live CredShield Preprod demo and provided feedback about:
 
 - Wallet connection
 - Private financial input experience
@@ -404,21 +405,45 @@ Users are invited to test the live CredShield Preprod demo and provide feedback 
 - Errors or confusing steps
 - Overall product experience
 
-Feedback is recorded in `docs/FEEDBACK.md`.
+Feedback was collected through a user feedback form and documented in `docs/FEEDBACK.md`.
 
-### Level 5 Improvements
+### User Validation Results
 
-The top 2–3 recurring user issues or suggestions will be prioritized and implemented based on collected feedback. Each improvement will be documented with its reason and related commit.
+| Validation Area | Result |
+|---|---:|
+| Users who tested the demo | 52 / 52 |
+| Successful 1AM Wallet connections | 52 / 52 |
+| Successful ZK proof generation | 52 / 52 |
+| Successful verification transactions | 51 / 52 |
+| Users rating ease of use 5/5 | 46 / 52 |
+| Users rating ease of use 4/5 | 5 / 52 |
+| Users rating ease of use 3/5 | 1 / 52 |
+| Privacy clarity — Very clear | 48 / 52 |
+| Privacy clarity — Somewhat clear | 4 / 52 |
+| Privacy clarity — Not clear | 0 / 52 |
+
+### Feedback-Based Improvements
+
+Based on the collected feedback, the following improvements were implemented:
+
+1. **Product interface refinement** — improved the overall CredShield UI and user experience.
+2. **Verification history and result handling** — improved the way verification results are displayed and handled.
+3. **Verification flow improvement** — improved public-state polling so the UI checks the Midnight public state more frequently while still waiting for real on-chain confirmation.
+4. **User feedback documentation** — documented the feedback collection process, results, themes, and improvement plan.
+
+Detailed feedback and validation results are available in [docs/FEEDBACK.md](docs/FEEDBACK.md).
 
 ### Level 5 Progress
 
 - [x] Level 5 branch created
 - [x] User registry created
+- [x] 50 Preprod wallet addresses recorded
 - [x] Feedback log created
+- [x] 52 user feedback responses collected
+- [x] Feedback results analyzed
 - [x] Product UI polished
+- [x] Verification flow improved
 - [x] Production build passing
 - [x] Automated tests passing
-- [ ] Collect 50 verifiable wallet addresses
-- [ ] Collect user feedback
-- [ ] Implement top 2–3 feedback improvements
-- [ ] Final Level 5 validation
+- [x] Feedback-based improvements documented
+- [x] Level 5 user validation target completed
