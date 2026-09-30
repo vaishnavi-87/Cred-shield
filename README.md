@@ -455,7 +455,7 @@ The Level 5 wallet registry contains 50 Midnight Preprod wallet addresses.
 The registry can be validated locally with:
 
 ```bash
-./scripts/validate-users.sh
+npm run validate:users
 ```
 
 The validation checks that:
