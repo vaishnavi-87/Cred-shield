@@ -297,7 +297,7 @@ Note: Steps 8–11 require the 1AM Wallet to have DUST tokens for proof fees.
 
 ![CredShield CI](https://github.com/vaishnavi-87/Cred-shield/actions/workflows/ci.yml/badge.svg)
 
-The GitHub Actions CI pipeline runs automatically on the `level4-mvp` branch and verifies the Compact contract compilation and automated test suite.
+The GitHub Actions CI pipeline runs automatically on the `level4-mvp` and `level5-users-feedback` branches and verifies the Compact contract compilation and automated test suite.
 
 CI evidence:
 
