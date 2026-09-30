@@ -18,7 +18,8 @@
     "clean": "rm -rf contracts/managed .midnight-state.json .midnight-wallet-state",
     "test": "vitest run",
     "test:e2e": "tsx scripts/e2e-check.ts",
-    "dev": "vite"
+    "dev": "vite",
+    "validate:users": "bash scripts/validate-users.sh"
   },
   "dependencies": {
     "@midnight-ntwrk/compact-runtime": "0.16.0",
