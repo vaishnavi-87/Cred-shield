@@ -17,6 +17,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Validate user registry
+        run: ./scripts/validate-users.sh
+
       - name: Setup Node.js 22
         uses: actions/setup-node@v4
         with:
