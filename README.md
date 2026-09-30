@@ -447,3 +447,18 @@ Detailed feedback and validation results are available in [docs/FEEDBACK.md](doc
 - [x] Automated tests passing
 - [x] Feedback-based improvements documented
 - [x] Level 5 user validation target completed
+
+## User Registry Validation
+
+The Level 5 wallet registry contains 50 Midnight Preprod wallet addresses.
+
+The registry can be validated locally with:
+
+```bash
+./scripts/validate-users.sh
+```
+
+The validation checks that:
+- Exactly 50 wallet addresses are recorded
+- Addresses use the `mn_addr_preprod` format
+- No duplicate addresses are present
