@@ -1,26 +1,23 @@
+import { useState } from "react";
 import type { ReactNode } from "react";
+import AppShell, { type AppPage } from "./AppShell";
 
 type LayoutProps = {
-  children: ReactNode;
+  children: (activePage: AppPage) => ReactNode;
 };
 
-export default function Layout({ children }: LayoutProps) {
+export default function Layout({
+  children,
+}: LayoutProps) {
+  const [activePage, setActivePage] =
+    useState<AppPage>("dashboard");
+
   return (
-    <div className="min-h-screen">
-      <header>
-        <div>
-          <h1>CredShield</h1>
-          <p>Private Creditworthiness Verification</p>
-        </div>
-      </header>
-
-      <main>{children}</main>
-
-      <footer>
-        <p>
-          Powered by Midnight zero-knowledge privacy.
-        </p>
-      </footer>
-    </div>
+    <AppShell
+      activePage={activePage}
+      onNavigate={setActivePage}
+    >
+      {children(activePage)}
+    </AppShell>
   );
 }

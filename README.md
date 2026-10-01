@@ -300,7 +300,7 @@ Note: Steps 8–11 require the 1AM Wallet to have DUST tokens for proof fees.
 
 ![CredShield CI](https://github.com/vaishnavi-87/Cred-shield/actions/workflows/ci.yml/badge.svg)
 
-The GitHub Actions CI pipeline runs automatically on the `level4-mvp` branch and verifies the Compact contract compilation and automated test suite.
+The GitHub Actions CI pipeline runs automatically on the `level4-mvp` and `level5-users-feedback` branches and verifies the Compact contract compilation and automated test suite.
 
 CI evidence:
 
@@ -377,3 +377,98 @@ The project is ready to deploy to Vercel:
 - [x] Midnight Preprod contract deployed
 - [x] Final Level 4 demo evidence
 - [x] Final Level 4 demo video
+
+## Level 5 — User Validation
+
+CredShield Level 5 focuses on validating the product with real users and improving the experience based on their feedback.
+
+### User Validation Target
+
+- **Target:** 50 verifiable Midnight Preprod wallet addresses
+- **Current:** 50 / 50
+- **User Registry:** See [USERS.md](USERS.md)
+- **Feedback Log:** See [docs/FEEDBACK.md](docs/FEEDBACK.md)
+- **User Feedback Responses:** 52
+
+### Preprod Contract
+
+| Network | Contract Address |
+|---|---|
+| Midnight Preprod | `c5018b936e1223442e1bc25631155045bb3ab05decb961f00fbbc4a4fa996953` |
+
+### User Feedback Process
+
+Users tested the live CredShield Preprod demo and provided feedback about:
+
+- Wallet connection
+- Private financial input experience
+- ZK proof generation
+- Verification flow
+- UI and usability
+- Errors or confusing steps
+- Overall product experience
+
+Feedback was collected through a user feedback form and documented in `docs/FEEDBACK.md`.
+
+### User Validation Results
+
+| Validation Area | Result |
+|---|---:|
+| Users who tested the demo | 52 / 52 |
+| Successful 1AM Wallet connections | 52 / 52 |
+| Successful ZK proof generation | 52 / 52 |
+| Successful verification transactions | 51 / 52 |
+| Users rating ease of use 5/5 | 46 / 52 |
+| Users rating ease of use 4/5 | 5 / 52 |
+| Users rating ease of use 3/5 | 1 / 52 |
+| Privacy clarity — Very clear | 48 / 52 |
+| Privacy clarity — Somewhat clear | 4 / 52 |
+| Privacy clarity — Not clear | 0 / 52 |
+
+### Feedback-Based Improvements
+
+Based on the collected feedback, the following improvements were implemented:
+
+1. **Product interface refinement** — improved the overall CredShield UI and user experience.
+2. **Verification history and result handling** — improved the way verification results are displayed and handled.
+3. **Verification flow improvement** — improved public-state polling so the UI checks the Midnight public state more frequently while still waiting for real on-chain confirmation.
+4. **User feedback documentation** — documented the feedback collection process, results, themes, and improvement plan.
+
+Detailed feedback and validation results are available in [docs/FEEDBACK.md](docs/FEEDBACK.md).
+
+### Level 5 Progress
+
+- [x] Level 5 branch created
+- [x] User registry created
+- [x] 50 Preprod wallet addresses recorded
+- [x] Feedback log created
+- [x] 52 user feedback responses collected
+- [x] Feedback results analyzed
+- [x] Product UI polished
+- [x] Verification flow improved
+- [x] Production build passing
+- [x] Automated tests passing
+- [x] Feedback-based improvements documented
+- [x] Level 5 user validation target completed
+
+## Level 5 Submission Evidence
+
+- [Preprod Verification Evidence](docs/PREPROD_EVIDENCE.md)
+- [Level 5 Submission Checklist](docs/LEVEL5_SUBMISSION_CHECKLIST.md)
+- [User Feedback Report](docs/FEEDBACK.md)
+- [User Validation Report](docs/USER_VALIDATION_REPORT.md)
+
+## User Registry Validation
+
+The Level 5 wallet registry contains 50 Midnight Preprod wallet addresses.
+
+The registry can be validated locally with:
+
+```bash
+npm run validate:users
+```
+
+The validation checks that:
+- Exactly 50 wallet addresses are recorded
+- Addresses use the `mn_addr_preprod` format
+- No duplicate addresses are present
